@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongo-db:
+    image: mongo:latest
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    container_name: house-manager-auth-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo-db
+    environment:
+      - MONGO_URI=mongodb://mongo-db:27017
+      - JWT_SECRET_KEY=your_jwt_secret_key
+
+  task-service:
+    build: ./backend/task-service
+    container_name: house-manager-task-service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - mongo-db
+
+  calendar-service:
+    build: ./backend/calendar-service
+    container_name: house-manager-calendar-service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - mongo-db
+
+  frontend:
+    build: ./frontend
+    container_name: house-manager-frontend
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo-data:
