@@ -9,13 +9,12 @@ import os
 import secrets
 from dotenv import load_dotenv
 
+# Ensure load_dotenv() is called before accessing environment variables
 load_dotenv()
 
 router = APIRouter()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo-db:27017")
-SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-if not SECRET_KEY:
-    raise ValueError("No JWT_SECRET_KEY environment variable set")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "default_secret_key")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -93,6 +92,7 @@ async def register_user(request: Request):
 
         existing_user = users_collection.find_one({"email": user_data.email})
         if existing_user:
+            print("Email already registered")
             raise HTTPException(status_code=400, detail="Email already registered")
 
         hashed_password = get_password_hash(user_data.password)
@@ -107,6 +107,7 @@ async def register_user(request: Request):
         print("User registered successfully")
         return {"message": "User registered successfully"}
     except HTTPException as e:
+        print(f"HTTPException during registration: {e.detail}")
         raise e
     except Exception as e:
         print(f"Error during registration: {e}")
@@ -126,10 +127,10 @@ async def login(request: Request):
 
         user = users_collection.find_one({"username": user_data.username})
         if not user:
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            raise HTTPException(status_code=400, detail="Login failed. Please check your credentials and try again.")
 
         if not verify_password(user_data.password, user["password"]):
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            raise HTTPException(status_code=400, detail="Login failed. Please check your credentials and try again.")
 
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(

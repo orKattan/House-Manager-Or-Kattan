@@ -15,7 +15,8 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/register', {
+      console.log('Sending registration request:', { username, password, name, last_name: lastName, email });
+      const response = await fetch('http://localhost:8001/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,6 +24,7 @@ const RegisterPage: React.FC = () => {
         body: JSON.stringify({ username, password, name, last_name: lastName, email }),
       });
       const data = await response.json();
+      console.log('Received response:', data);
       if (response.ok) {
         alert(data.message);
       } else if (response.status === 400 && data.detail === "Email already registered") {
@@ -31,6 +33,7 @@ const RegisterPage: React.FC = () => {
         alert(data.detail);
       }
     } catch (error) {
+      console.error('Error during registration:', error);
       alert('An error occurred');
     }
   };

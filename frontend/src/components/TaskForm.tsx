@@ -12,7 +12,7 @@ const TaskForm: React.FC = () => {
   const [category, setCategory] = useState<TaskCategory>(TaskCategory.Bathroom);
   const { addTask } = useContext(TaskContext);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newTask = {
       id: Date.now().toString(),
@@ -23,7 +23,7 @@ const TaskForm: React.FC = () => {
       status: TaskStatus.Pending,
       category,
     };
-    addTask(newTask);
+    await addTask(newTask);  // Ensure this is awaited
     setTitle('');
     setDescription('');
     setDueDate('');

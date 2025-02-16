@@ -15,12 +15,9 @@ services:
       dockerfile: Dockerfile
     container_name: house-manager-auth-service
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       - mongo-db
-    environment:
-      - MONGO_URI=mongodb://mongo-db:27017
-      - JWT_SECRET_KEY=your_jwt_secret_key
 
   task-service:
     build: ./backend/task-service

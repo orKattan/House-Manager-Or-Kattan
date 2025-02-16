@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -16,30 +16,32 @@ db = client["house_manager"]
 tasks_collection = db["tasks"]
 
 class Task(BaseModel):
-    name: str
+    title: str
     description: str
-    due_date: datetime
-    start_time: datetime
-    end_time: datetime
+    dueDate: datetime
+    startTime: datetime
+    endTime: datetime
     participants: list
     recurring: bool
     category: str
+    priority: str
+    status: str
 
-@router.post("/tasks")
+@router.post("/")
 def create_task(task: Task):
     task_dict = task.dict()
-    task_dict["created_at"] = datetime.utcnow()
+    task_dict["createdAt"] = datetime.utcnow()
     tasks_collection.insert_one(task_dict)
     return {"message": "Task created successfully"}
 
-@router.get("/tasks")
+@router.get("/")
 def get_tasks():
     tasks = list(tasks_collection.find())
     for task in tasks:
         task["_id"] = str(task["_id"])
     return tasks
 
-@router.get("/tasks/{task_id}")
+@router.get("/{task_id}")
 def get_task(task_id: str):
     task = tasks_collection.find_one({"_id": ObjectId(task_id)})
     if not task:
@@ -47,16 +49,35 @@ def get_task(task_id: str):
     task["_id"] = str(task["_id"])
     return task
 
-@router.put("/tasks/{task_id}")
+@router.put("/{task_id}")
 def update_task(task_id: str, task: Task):
     result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": task.dict()})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": "Task updated successfully"}
 
-@router.delete("/tasks/{task_id}")
+@router.delete("/{task_id}")
 def delete_task(task_id: str):
     result = tasks_collection.delete_one({"_id": ObjectId(task_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": "Task deleted successfully"}
+
+@router.get("/filter")
+def filter_tasks(
+    category: str = Query(None),
+    status: str = Query(None),
+    priority: str = Query(None)
+):
+    query = {}
+    if category:
+        query["category"] = category
+    if status:
+        query["status"] = status
+    if priority:
+        query["priority"] = priority
+
+    tasks = list(tasks_collection.find(query))
+    for task in tasks:
+        task["_id"] = str(task["_id"])
+    return tasks
