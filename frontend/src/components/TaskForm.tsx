@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task, TaskStatus, TaskCategory } from '../types';
+import { Task, TaskStatus, TaskCategory } from '../types'; // Import Task type
 import { useTaskContext } from '../contexts/TaskContext';
 
 const TaskForm: React.FC = () => {

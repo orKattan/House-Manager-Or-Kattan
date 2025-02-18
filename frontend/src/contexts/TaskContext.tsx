@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { Task } from '../types';
+import { TaskStatus, TaskCategory, Task } from '../types';
 
 interface TaskContextProps {
   tasks: Task[];
@@ -42,13 +42,16 @@ export const TaskProvider: React.FC = ({ children }) => {
     try {
       const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
       const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
+      console.log("Fetching tasks from URL:", url);
       const response = await fetch(url, {
         method: 'GET',
         headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error(await response.text());
       const data = await response.json();
-      setTasks(data);
+      // Ensure task IDs are correctly set
+      const tasksWithIds = data.map((task: any) => ({ ...task, id: task._id }));
+      setTasks(tasksWithIds);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
@@ -56,6 +59,7 @@ export const TaskProvider: React.FC = ({ children }) => {
 
   const addTask = async (task: Omit<Task, 'id'>) => {
     try {
+      console.log("Adding task:", task);
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -71,13 +75,15 @@ export const TaskProvider: React.FC = ({ children }) => {
 
   const updateTask = async (taskId: string, task: Task) => {
     try {
+      console.log("Updating task with ID:", taskId);
       const response = await fetch(`${API_URL}/${taskId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error(await response.text());
-      setTasks(prevTasks => prevTasks.map(t => (t.id === taskId ? { ...task, id: taskId } : t)));
+      const updatedTask = await response.json();
+      setTasks(prevTasks => prevTasks.map(t => (t.id === taskId ? updatedTask : t)));
     } catch (error) {
       console.error('Error updating task:', error);
     }
@@ -85,6 +91,7 @@ export const TaskProvider: React.FC = ({ children }) => {
 
   const deleteTask = async (taskId: string) => {
     try {
+      console.log("Deleting task with ID:", taskId);
       const response = await fetch(`${API_URL}/${taskId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
