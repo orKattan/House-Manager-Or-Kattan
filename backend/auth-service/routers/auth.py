@@ -6,7 +6,6 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
-import secrets
 from dotenv import load_dotenv
 
 # Ensure load_dotenv() is called before accessing environment variables
@@ -147,11 +146,3 @@ async def login(request: Request):
         print(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# Example of a protected endpoint
-@router.get("/protected-tasks")
-def get_user_tasks(current_user: dict = Depends(get_current_user)):
-    user_email = current_user["email"]
-    tasks = list(tasks_collection.find({"owner_email": user_email}))
-    for t in tasks:
-        t["_id"] = str(t["_id"])
-    return tasks

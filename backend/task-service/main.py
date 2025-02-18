@@ -11,15 +11,19 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to the specific origins you want to allow
+    allow_origins=["*"],  # Adjust this to your frontend's URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Add prefix to task routes
+# Include the task router
 app.include_router(task.router, prefix="/tasks")
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Task Service"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8002)

@@ -1,16 +1,8 @@
 import React from 'react';
-import { TaskStatus, TaskCategory } from '../types';
+import { Task } from '../types';
 
 interface TaskItemProps {
-  task: {
-    id: string;
-    title: string;
-    description: string;
-    dueDate: string;
-    priority: 'low' | 'medium' | 'high';
-    status: TaskStatus;
-    category: TaskCategory;
-  };
+  task: Task;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
@@ -18,7 +10,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     <div>
       <h3>{task.title}</h3>
       <p>{task.description}</p>
-      <p>Due: {task.dueDate}</p>
+      <p>Due: {new Date(task.dueDate).toLocaleString()}</p>
       <p>Priority: {task.priority}</p>
       <p>Status: {task.status}</p>
       <p>Category: {task.category}</p>

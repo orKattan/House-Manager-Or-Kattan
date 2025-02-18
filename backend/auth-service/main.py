@@ -9,6 +9,12 @@ import os
 
 load_dotenv()
 
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo-db:27017")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "default_secret_key")
+
+if not JWT_SECRET_KEY:
+    raise ValueError("No JWT_SECRET_KEY environment variable set")
+
 app = FastAPI()
 
 # Add CORS middleware
@@ -20,7 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = MongoClient("mongodb://new_mongo_container:27017/")
+client = MongoClient(MONGO_URI)
 db = client["house_manager"]
 users_collection = db["users"]
 
@@ -36,3 +42,7 @@ app.include_router(auth.router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Auth Service"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

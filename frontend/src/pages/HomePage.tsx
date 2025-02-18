@@ -5,7 +5,7 @@ import TaskList from '../components/TaskList';
 const HomePage: React.FC = () => {
   return (
     <div>
-      <h1>Home Page</h1>
+      <h1>Task Manager</h1>
       <TaskForm />
       <TaskList />
     </div>

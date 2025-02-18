@@ -15,7 +15,7 @@ services:
       dockerfile: Dockerfile
     container_name: house-manager-auth-service
     ports:
-      - "8001:8000"
+      - "8001:8001"
     depends_on:
       - mongo-db
 
@@ -23,7 +23,7 @@ services:
     build: ./backend/task-service
     container_name: house-manager-task-service
     ports:
-      - "8002:8000"
+      - "8002:8002"
     depends_on:
       - mongo-db
 
@@ -31,7 +31,7 @@ services:
     build: ./backend/calendar-service
     container_name: house-manager-calendar-service
     ports:
-      - "8003:8000"
+      - "8003:8003"
     depends_on:
       - mongo-db
 

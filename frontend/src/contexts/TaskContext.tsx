@@ -1,129 +1,103 @@
-import React, { createContext, useState } from 'react';
-import { TaskStatus, TaskCategory } from '../types';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string;
-  priority: 'low' | 'medium' | 'high';
-  status: TaskStatus;
-  category: TaskCategory;
-}
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { Task } from '../types';
 
 interface TaskContextProps {
   tasks: Task[];
-  addTask: (task: Task) => Promise<void>;
-  updateTask: (task: Task) => Promise<void>;
+  addTask: (task: Omit<Task, 'id'>) => Promise<void>;
+  updateTask: (taskId: string, task: Task) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
+  fetchTasks: (filters?: { category?: string; status?: string; priority?: string }) => Promise<void>;
 }
 
-export const TaskContext = createContext<TaskContextProps>({
-  tasks: [],
-  addTask: async () => {},
-  updateTask: async () => {},
-  deleteTask: async () => {},
-});
+const TaskContext = createContext<TaskContextProps | undefined>(undefined);
+
+export const useTaskContext = () => {
+  const context = useContext(TaskContext);
+  if (!context) {
+    throw new Error('useTaskContext must be used within a TaskProvider');
+  }
+  return context;
+};
 
 export const TaskProvider: React.FC = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const API_URL = 'http://localhost:8002/tasks';
 
-  const addTask = async (task: Task) => {
-    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
-    console.log('Token:', token); // Debugging: Check if token is retrieved
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
+  const getAuthHeaders = (): HeadersInit => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
+    return headers;
+  };
 
+  const fetchTasks = async (filters?: { category?: string; status?: string; priority?: string }) => {
     try {
-      const response = await fetch('http://localhost:8002/tasks', {
+      const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
+      const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const data = await response.json();
+      setTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const addTask = async (task: Omit<Task, 'id'>) => {
+    try {
+      const response = await fetch(API_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(task),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create task: ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('Task created successfully:', result);
-      setTasks([...tasks, task]);
+      if (!response.ok) throw new Error(await response.text());
+      const newTask = await response.json();
+      setTasks(prevTasks => [...prevTasks, { ...task, id: newTask.task_id }]);
     } catch (error) {
       console.error('Error creating task:', error);
     }
   };
 
-  const updateTask = async (updatedTask: Task) => {
-    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
-    console.log('Token:', token); // Debugging: Check if token is retrieved
-
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-
+  const updateTask = async (taskId: string, task: Task) => {
     try {
-      const response = await fetch(`http://localhost:8002/tasks/${updatedTask.id}`, {
+      const response = await fetch(`${API_URL}/${taskId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedTask),
+        headers: getAuthHeaders(),
+        body: JSON.stringify(task),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update task: ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('Task updated successfully:', result);
-      setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
+      if (!response.ok) throw new Error(await response.text());
+      setTasks(prevTasks => prevTasks.map(t => (t.id === taskId ? { ...task, id: taskId } : t)));
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
 
   const deleteTask = async (taskId: string) => {
-    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
-    console.log('Token:', token); // Debugging: Check if token is retrieved
-
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-
     try {
-      const response = await fetch(`http://localhost:8002/tasks/${taskId}`, {
+      const response = await fetch(`${API_URL}/${taskId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to delete task: ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('Task deleted successfully:', result);
-      setTasks(tasks.filter(task => task.id !== taskId));
+      if (!response.ok) throw new Error(await response.text());
+      setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
     } catch (error) {
       console.error('Error deleting task:', error);
     }
   };
 
   return (
-    <TaskContext.Provider value={{ tasks, addTask, updateTask, deleteTask }}>
+    <TaskContext.Provider value={{ tasks, addTask, updateTask, deleteTask, fetchTasks }}>
       {children}
     </TaskContext.Provider>
   );

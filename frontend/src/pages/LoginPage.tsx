@@ -4,11 +4,13 @@ import { useHistory } from 'react-router-dom';
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const history = useHistory();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8001/login', { // Ensure this points to the auth-service
+      const response = await fetch('http://localhost:8001/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -18,52 +20,42 @@ const LoginPage: React.FC = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to login: ${errorText}`);
+        throw new Error(errorText);
       }
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
-
-      // Add bearer token to headers for subsequent requests
-      const token = data.access_token;
-      const protectedResponse = await fetch('http://localhost:8002/tasks', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!protectedResponse.ok) {
-        const errorText = await protectedResponse.text();
-        throw new Error(`Failed to fetch tasks: ${errorText}`);
-      }
-
-      const protectedData = await protectedResponse.json();
-
-      history.push('/home'); // Redirect to dashboard or another page
+      history.push('/home');
     } catch (error) {
-      console.error('Error logging in:', error);
-      alert('Login failed. Please check your credentials and try again.');
+      setError('Login failed. Please check your credentials and try again.');
     }
   };
 
   return (
     <div>
       <h1>Login</h1>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Username:</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 };

@@ -6,6 +6,11 @@ import os
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo-db:27017")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+if not JWT_SECRET_KEY:
+    raise ValueError("No JWT_SECRET_KEY environment variable set")
+
 client = MongoClient(MONGO_URI)
 db = client["house_manager"]
 users_collection = db["users"]
