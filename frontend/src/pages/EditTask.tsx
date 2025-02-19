@@ -5,7 +5,7 @@ import { Task, TaskCategory, TaskStatus } from '../types';
 
 const EditTask: React.FC = () => {
   const { taskId } = useParams<{ taskId: string }>();
-  const { tasks, updateTask } = useTaskContext();
+  const { tasks, updateTask, fetchTasks } = useTaskContext();
   const [task, setTask] = useState<Task>({
     id: '',
     title: '',

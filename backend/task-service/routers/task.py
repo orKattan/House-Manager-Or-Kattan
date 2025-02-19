@@ -8,6 +8,7 @@ from typing import List, Optional
 import os
 from dotenv import load_dotenv
 from jose import JWTError, jwt
+from fastapi.responses import RedirectResponse
 
 load_dotenv()
 
@@ -53,7 +54,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     return user
 
-@router.post("/", dependencies=[Depends(get_current_user)])
+@router.post("", dependencies=[Depends(get_current_user)])
 def create_task(task: Task):
     try:
         print("Creating task with data:", task.dict())  # Add logging to verify task data
@@ -67,7 +68,7 @@ def create_task(task: Task):
         print(f"Error creating task: {e}")  # Add logging for errors
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/", dependencies=[Depends(get_current_user)])
+@router.get("", dependencies=[Depends(get_current_user)])
 def get_tasks():
     tasks = list(tasks_collection.find())
     for task in tasks:
@@ -118,3 +119,4 @@ def delete_task(task_id: str):
         return {"message": "Task deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    

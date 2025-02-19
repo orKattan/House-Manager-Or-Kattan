@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task, TaskStatus, TaskCategory } from '../types'; // Import Task type
+import { Task, TaskStatus, TaskCategory } from '../types';
 import { useTaskContext } from '../contexts/TaskContext';
 
 const TaskForm: React.FC = () => {
@@ -36,9 +36,9 @@ const TaskForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting task:", task);
     if (validateTask(task)) {
       await addTask(task);
+      console.log("Task added successfully");
       setTask({
         title: '',
         description: '',

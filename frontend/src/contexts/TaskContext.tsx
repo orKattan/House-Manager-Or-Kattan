@@ -21,11 +21,7 @@ export const useTaskContext = () => {
 
 export const TaskProvider: React.FC = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const API_URL = 'http://localhost:8002/tasks';
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const API_URL = 'http://localhost:8002/tasks'; // Ensure the correct endpoint
 
   const getAuthHeaders = (): HeadersInit => {
     const headers: Record<string, string> = {
