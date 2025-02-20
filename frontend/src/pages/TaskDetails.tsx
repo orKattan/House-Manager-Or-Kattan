@@ -10,7 +10,7 @@ const TaskDetails: React.FC = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+  }, []);
 
   if (!task) {
     return <div>Loading...</div>;

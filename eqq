@@ -1,0 +1,35 @@
+[33mcommit 3095f610820c136150c66d0b238f15d6506e18d6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Or Kattan <ork123411@gmail.com>
+Date:   Wed Feb 19 21:49:16 2025 +0200
+
+           working task crud with backend task-service
+
+[33mcommit 5d096dfc3eb83759ad29b34553a9928a671d2385[m
+Author: Or Kattan <ork123411@gmail.com>
+Date:   Tue Feb 18 23:57:49 2025 +0200
+
+    almost working task crud with backend task-service
+
+[33mcommit 88e866c3e51ebba2a863ba6a830fe6f9d1b6453b[m
+Author: Or Kattan <ork123411@gmail.com>
+Date:   Tue Feb 18 19:50:13 2025 +0200
+
+    crud with task-service working
+
+[33mcommit c61cdca372ebf031ba47109c51b82a94fe34f8db[m
+Author: Or Kattan <ork123411@gmail.com>
+Date:   Sun Feb 16 21:10:44 2025 +0200
+
+    login and register working, with multiple services
+
+[33mcommit d47f7549dd62c51e96ebc17ec9f92aec3bd81914[m
+Author: Or Kattan <ork123411@gmail.com>
+Date:   Sat Feb 15 13:31:11 2025 +0200
+
+    basic home page working for task selection
+
+[33mcommit f79c98f6d94b5e6b34d04485f4f2a742f93f20d1[m
+Author: Or Kattan <ork123411@gmail.com>
+Date:   Fri Feb 14 18:30:05 2025 +0200
+
+    login and register working

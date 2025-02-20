@@ -20,7 +20,7 @@ const App: React.FC = () => {
           <Route path="/register" component={RegisterPage} />
           <Route path="/login" component={LoginPage} />
           {/* <Route path="/tasks/:taskId" component={TaskDetails} /> Ensure this route exists */}
-          <Route path="/tasks/:taskId/edit" component={EditTask} /> {/* Ensure this route exists */}
+          {/* <Route path="/tasks/:taskId/edit" component={EditTask} /> Ensure this route exists */}
         </Switch>
       </Router>
     </TaskProvider>

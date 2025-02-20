@@ -31,10 +31,13 @@ class Task(BaseModel):
 tasks = []
 
 @app.get("/tasks", response_model=List[Task])
-async def get_tasks(category: Optional[str] = None):
+async def get_tasks(category: Optional[str] = None, user: Optional[str] = None):
+    filtered_tasks = tasks
     if category:
-        return [task for task in tasks if task.category == category]
-    return tasks
+        filtered_tasks = [task for task in filtered_tasks if task.category == category]
+    if user:
+        filtered_tasks = [task for task in filtered_tasks if user in task.participants]
+    return filtered_tasks
 
 @app.post("/tasks", response_model=Task)
 async def add_task(new_task: Task):

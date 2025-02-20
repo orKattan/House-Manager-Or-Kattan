@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTaskContext } from '../contexts/TaskContext';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
-import { TaskCategory } from '../types'; // Import TaskCategory
+import { TaskCategory } from '../types';
 
 const HomePage: React.FC = () => {
   const { fetchTasks } = useTaskContext();
   const [category, setCategory] = useState<string>('');
-
-  useEffect(() => {
-    console.log('Fetching tasks on mount');
-    fetchTasks();
-  }, []); // Ensure this runs only once when the component mounts
+  const [user, setUser] = useState<string>('');
 
   const handleFilterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Filtering tasks by category:', category);
-    await fetchTasks(category ? { category } : undefined);
+    await fetchTasks({ category, user });
   };
 
   return (
@@ -35,6 +30,10 @@ const HomePage: React.FC = () => {
             <option value={TaskCategory.Laundry}>Laundry</option>
             <option value={TaskCategory.LivingRoom}>Living Room</option>
           </select>
+        </div>
+        <div>
+          <label>Filter by User:</label>
+          <input type="text" value={user} onChange={e => setUser(e.target.value)} placeholder="Enter username" />
         </div>
         <button type="submit">Filter</button>
       </form>
