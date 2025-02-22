@@ -17,9 +17,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
   const [status, setStatus] = useState<TaskStatus>(task.status);
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(task.priority || 'low');
   const [participants, setParticipants] = useState(task.participants || []);
-  const [dueDate, setDueDate] = useState(task.dueDate);
-  const [startTime, setStartTime] = useState(task.startTime);
-  const [endTime, setEndTime] = useState(task.endTime);
+  const [due_date, setDueDate] = useState(task.due_date);
+  const [startTime, setStartTime] = useState(task.start_time);
+  const [end_time, setend_time] = useState(task.end_time);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -52,9 +52,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
       status,
       priority,
       participants,
-      dueDate,
+      due_date,
       startTime,
-      endTime,
+      end_time,
     };
     await updateTask(task.id, updatedTask);
     onClose();
@@ -85,8 +85,8 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
             <label>Due Date:</label>
             <input
               type="date"
-              name="dueDate"
-              value={dueDate}
+              name="due_date"
+              value={due_date}
               onChange={(e) => setDueDate(e.target.value)}
               required
             />
@@ -105,9 +105,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
             <label>End Time:</label>
             <input
               type="time"
-              name="endTime"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
+              name="end_time"
+              value={end_time}
+              onChange={(e) => setend_time(e.target.value)}
               required
             />
           </div>

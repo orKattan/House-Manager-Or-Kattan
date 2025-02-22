@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from datetime import datetime
+from datetime import datetime, date, time
 from typing import List, Optional
 import os
 from dotenv import load_dotenv
@@ -47,6 +47,17 @@ def get_tasks():
     tasks = list(tasks_collection.find())
     for task in tasks:
         task["_id"] = str(task["_id"])
+
+        # Convert datetime fields to string for frontend compatibility
+        if "due_date" in task and isinstance(task["due_date"], datetime):
+            task["due_date"] = task["due_date"].date().isoformat()  # Convert to YYYY-MM-DD
+
+        if "start_time" in task and isinstance(task["start_time"], str):
+            task["start_time"] = task["start_time"]
+
+        if "end_time" in task and isinstance(task["end_time"], str):
+            task["end_time"] = task["end_time"]
+
     return tasks
 
 @router.post("", dependencies=[Depends(get_current_user)])
@@ -54,6 +65,12 @@ def create_task(task: Task):
     try:
         task_dict = task.dict()
         task_dict["createdAt"] = datetime.utcnow()
+        if isinstance(task_dict["due_date"], date):
+            task_dict["due_date"] = task_dict["due_date"].isoformat()
+        if isinstance(task_dict["start_time"], time):
+            task_dict["start_time"] = task_dict["start_time"].isoformat()
+        if isinstance(task_dict["end_time"], time):
+            task_dict["end_time"] = task_dict["end_time"].isoformat()
         result = tasks_collection.insert_one(task_dict)
         if not result.inserted_id:
             raise HTTPException(status_code=500, detail="Failed to insert task")
@@ -71,6 +88,12 @@ def get_task(task_id: str):
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
         task["_id"] = str(task["_id"])  # Convert ObjectId to string
+        if "due_date" in task and isinstance(task["due_date"], str):
+            task["due_date"] = datetime.strptime(task["due_date"], "%Y-%m-%d").date().isoformat()
+        if "start_time" in task and isinstance(task["start_time"], str):
+            task["start_time"] = task["start_time"]
+        if "end_time" in task and isinstance(task["end_time"], str):
+            task["end_time"] = task["end_time"]
         return task
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -83,7 +106,14 @@ def update_task(task_id: str, task: Task):
         existing_task = tasks_collection.find_one({"_id": ObjectId(task_id)})
         if not existing_task:
             raise HTTPException(status_code=404, detail="Task not found")
-        result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": task.dict()})
+        task_dict = task.dict()
+        if isinstance(task_dict["due_date"], date):
+            task_dict["due_date"] = task_dict["due_date"].isoformat()
+        if isinstance(task_dict["start_time"], time):
+            task_dict["start_time"] = task_dict["start_time"].isoformat()
+        if isinstance(task_dict["end_time"], time):
+            task_dict["end_time"] = task_dict["end_time"].isoformat()
+        result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": task_dict})
         if result.modified_count == 0:
             raise HTTPException(status_code=404, detail="Task not found or no changes made")
         return {"message": "Task updated successfully"}
@@ -122,6 +152,12 @@ async def get_tasks(
     tasks = list(tasks_collection.find(query))
     for task in tasks:
         task["_id"] = str(task["_id"])  # Convert ObjectId to string
+        if "due_date" in task and isinstance(task["due_date"], str):
+            task["due_date"] = datetime.strptime(task["due_date"], "%Y-%m-%d").date().isoformat()
+        if "start_time" in task and isinstance(task["start_time"], str):
+            task["start_time"] = task["start_time"]
+        if "end_time" in task and isinstance(task["end_time"], str):
+            task["end_time"] = task["end_time"]
     return tasks
 
 @router.get("/distinct/{field}", dependencies=[Depends(get_current_user)])

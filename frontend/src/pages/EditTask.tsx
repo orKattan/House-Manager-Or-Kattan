@@ -6,116 +6,100 @@ import { Task, TaskCategory, TaskStatus } from '../types';
 const EditTask: React.FC = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const { tasks, updateTask, fetchTasks } = useTaskContext();
-  const [task, setTask] = useState<Task>({
+  const history = useHistory();
+  const task = tasks.find(task => task.id === taskId) || {
     id: '',
     title: '',
     description: '',
-    dueDate: '',
-    startTime: '',
-    endTime: '',
+    due_date: '',
+    start_time: '',
+    end_time: '',
     participants: [],
     recurring: false,
     category: TaskCategory.EntireHome,
     priority: 'low',
     status: TaskStatus.Pending,
-    user: '', // Add the user property here
-  });
-  const history = useHistory();
-
-  useEffect(() => {
-    const fetchTask = async () => {
-      await fetchTasks();
-      const taskToEdit = tasks.find(t => t.id === taskId);
-      if (taskToEdit) {
-        setTask(taskToEdit);
-      }
-    };
-    fetchTask();
-  }, [taskId, tasks, fetchTasks]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    if (name === 'participants') {
-      setTask(prevTask => ({ ...prevTask, participants: value.split(',').map(participant => participant.trim()) }));
-    } else {
-      setTask(prevTask => ({ ...prevTask, [name]: value }));
-    }
+    user: '',
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setTask(prevTask => ({ ...prevTask, [name]: checked }));
+  const [formData, setFormData] = useState<Task>(task);
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    setFormData(task);
+  }, [task]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateTask(task.id, task);
-    history.push('/HomePage');
+    await updateTask(taskId, formData);
+    history.push('/tasks');
   };
 
   return (
-    <div>
-      <h2>Edit Task</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title</label>
-          <input type="text" name="title" value={task.title} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Description</label>
-          <textarea name="description" value={task.description} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Due Date</label>
-          <input type="date" name="dueDate" value={task.dueDate} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Start Time</label>
-          <input type="time" name="startTime" value={task.startTime} onChange={handleChange} />
-        </div>
-        <div>
-          <label>End Time</label>
-          <input type="time" name="endTime" value={task.endTime} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Participants</label>
-          <input type="text" name="participants" value={task.participants.join(', ')} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Recurring</label>
-          <input type="checkbox" name="recurring" checked={task.recurring} onChange={handleCheckboxChange} />
-        </div>
-        <div>
-          <label>Category</label>
-          <select name="category" value={task.category} onChange={handleChange}>
-            {Object.values(TaskCategory).map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Priority</label>
-          <select name="priority" value={task.priority} onChange={handleChange}>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
-        <div>
-          <label>Status</label>
-          <select name="status" value={task.status} onChange={handleChange}>
-            {Object.values(TaskStatus).map(status => (
-              <option key={status} value={status}>{status}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>User</label>
-          <input type="text" name="user" value={task.user} onChange={handleChange} />
-        </div>
-        <button type="submit">Save</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Title</label>
+        <input type="text" name="title" value={formData.title} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Description</label>
+        <textarea name="description" value={formData.description} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Due Date</label>
+        <input type="date" name="due_date" value={formData.due_date} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Start Time</label>
+        <input type="time" name="start_time" value={formData.start_time} onChange={handleChange} />
+      </div>
+      <div>
+        <label>End Time</label>
+        <input type="time" name="end_time" value={formData.end_time} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Participants</label>
+        <input type="text" name="participants" value={formData.participants.join(', ')} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Category</label>
+        <select name="category" value={formData.category} onChange={handleChange}>
+          <option value={TaskCategory.EntireHome}>Entire Home</option>
+          <option value={TaskCategory.Kitchen}>Kitchen</option>
+          <option value={TaskCategory.Bathroom}>Bathroom</option>
+          <option value={TaskCategory.LivingRoom}>Living Room</option>
+          <option value={TaskCategory.Bedroom}>Bedroom</option>
+        </select>
+      </div>
+      <div>
+        <label>Priority</label>
+        <select name="priority" value={formData.priority} onChange={handleChange}>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div>
+        <label>Status</label>
+        <select name="status" value={formData.status} onChange={handleChange}>
+          <option value={TaskStatus.Pending}>Pending</option>
+          <option value={TaskStatus.InProgress}>In Progress</option>
+          <option value={TaskStatus.Completed}>Completed</option>
+        </select>
+      </div>
+      <button type="submit">Save</button>
+    </form>
   );
 };
 

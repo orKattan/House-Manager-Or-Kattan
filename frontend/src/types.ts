@@ -18,9 +18,9 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  dueDate: string;
-  startTime: string;
-  endTime: string;
+  due_date: string;
+  start_time: string;
+  end_time: string;
   participants: string[];
   recurring: boolean;
   category: TaskCategory;

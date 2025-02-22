@@ -17,7 +17,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  dueDate: string; // Ensure this is a string in ISO format
+  due_date: string; // Ensure this is a string in ISO format
   startTime: string; // Ensure this is a string in ISO format
   endTime: string; // Ensure this is a string in ISO format
   participants: string[];

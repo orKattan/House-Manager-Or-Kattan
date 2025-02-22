@@ -7,15 +7,15 @@ const TaskForm: React.FC = () => {
   const { addTask } = useTaskContext();
   const { currentUser } = useUserContext();
   const [users, setUsers] = useState<User[]>([]);
-  const defaultDueDate = new Date().toISOString().split('T')[0];
-  const defaultStartTime = new Date().toISOString().split('T')[1].slice(0, 5);
-  const defaultEndTime = new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().split('T')[1].slice(0, 5);
+  const defaultdue_date = new Date().toISOString().split('T')[0];
+  const defaultstart_time = new Date().toISOString().split('T')[1].slice(0, 5);
+  const defaultend_time = new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().split('T')[1].slice(0, 5);
   const [task, setTask] = useState<Omit<Task, 'id'>>({
     title: '',
     description: '',
-    dueDate: defaultDueDate,
-    startTime: defaultStartTime,
-    endTime: defaultEndTime,
+    due_date: defaultdue_date,
+    start_time: defaultstart_time,
+    end_time: defaultend_time,
     participants: [],
     recurring: false,
     category: TaskCategory.Bathroom,
@@ -67,7 +67,7 @@ const TaskForm: React.FC = () => {
   };
 
   const validateTask = (task: Omit<Task, 'id'>): boolean => {
-    if (!task.title || !task.dueDate || !task.startTime || !task.endTime || !task.category || !task.priority || !task.status || !task.user) {
+    if (!task.title || !task.due_date || !task.start_time || !task.end_time || !task.category || !task.priority || !task.status || !task.user) {
       setError('Please fill in all required fields.');
       return false;
     }
@@ -84,9 +84,9 @@ const TaskForm: React.FC = () => {
         setTask({
           title: '',
           description: '',
-          dueDate: defaultDueDate,
-          startTime: defaultStartTime,
-          endTime: defaultEndTime,
+          due_date: defaultdue_date,
+          start_time: defaultstart_time,
+          end_time: defaultend_time,
           participants: [],
           recurring: false,
           category: TaskCategory.Bathroom,
@@ -114,15 +114,15 @@ const TaskForm: React.FC = () => {
       </div>
       <div>
         <label>Due Date:</label>
-        <input type="date" name="dueDate" value={task.dueDate} onChange={handleChange} required />
+        <input type="date" name="due_date" value={task.due_date} onChange={handleChange} required />
       </div>
       <div>
         <label>Start Time:</label>
-        <input type="time" name="startTime" value={task.startTime} onChange={handleChange} required />
+        <input type="time" name="start_time" value={task.start_time} onChange={handleChange} required />
       </div>
       <div>
         <label>End Time:</label>
-        <input type="time" name="endTime" value={task.endTime} onChange={handleChange} required />
+        <input type="time" name="end_time" value={task.end_time} onChange={handleChange} required />
       </div>
       <div>
         <label>Participants:</label>

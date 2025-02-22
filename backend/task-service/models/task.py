@@ -6,7 +6,7 @@ class Task(BaseModel):
     id: str
     title: str
     description: str
-    dueDate: datetime
+    due_date: datetime
     participants: List[str]
     recurring: bool
     priority: Literal['low', 'medium', 'high']

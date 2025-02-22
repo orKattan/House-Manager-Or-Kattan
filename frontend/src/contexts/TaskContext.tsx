@@ -44,7 +44,13 @@ export const TaskProvider: React.FC = ({ children }) => {
       });
       if (!response.ok) throw new Error(await response.text());
       const data = await response.json();
-      const tasksWithIds = data.map((task: any) => ({ ...task, id: task._id }));
+      const tasksWithIds = data.map((task: any) => ({
+        ...task,
+        id: task._id,
+        due_date: task.due_date ? task.due_date.split("T")[0] : "", // Extract only the date
+        startTime: task.start_time || "", // Ensure empty string if undefined
+        endTime: task.end_time || "", // Ensure empty string if undefined
+      }));
       setTasks(tasksWithIds);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -78,8 +84,7 @@ export const TaskProvider: React.FC = ({ children }) => {
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error(await response.text());
-      const newTask = await response.json();
-      setTasks(prevTasks => [...prevTasks, { ...task, id: newTask.task_id }]);
+      await fetchTasks();
     } catch (error) {
       console.error('Error creating task:', error);
     }
@@ -93,8 +98,7 @@ export const TaskProvider: React.FC = ({ children }) => {
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error(await response.text());
-      const updatedTask = await response.json();
-      setTasks(prevTasks => prevTasks.map(t => (t.id === taskId ? updatedTask : t)));
+      await fetchTasks();
     } catch (error) {
       console.error('Error updating task:', error);
     }
@@ -107,7 +111,7 @@ export const TaskProvider: React.FC = ({ children }) => {
         headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error(await response.text());
-      setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
+      await fetchTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
     }
