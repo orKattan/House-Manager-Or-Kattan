@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useHistory, Link} from 'react-router-dom';
+import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
+
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const history = useHistory();
 
-  const handleRegister = async () => {
-    if (!email.includes('@')) {
-      alert('Please enter a valid email address.');
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
-
     try {
-      console.log('Sending registration request:', { username, password, name, last_name: lastName, email });
       const response = await fetch('http://localhost:8001/register', {
         method: 'POST',
         headers: {
@@ -23,59 +27,99 @@ const RegisterPage: React.FC = () => {
         },
         body: JSON.stringify({ username, password, name, last_name: lastName, email }),
       });
-      const data = await response.json();
-      console.log('Received response:', data);
-      if (response.ok) {
-        alert(data.message);
-      } else if (response.status === 400 && data.detail === "Email already registered") {
-        alert("User already exists. Please use a different email.");
-      } else {
-        alert(data.detail);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
       }
+
+      history.push('/login');
     } catch (error) {
-      console.error('Error during registration:', error);
-      alert('An error occurred');
+      setError('Registration failed. Please try again.');
     }
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Last Name"
-        value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <button onClick={handleRegister}>Register</button>
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
-    </div>
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography variant="h4" gutterBottom>
+          Register
+        </Typography>
+      </Box>
+      <form onSubmit={handleRegister}>
+
+        <TextField
+          label="First Name"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <TextField
+          label="Last Name"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          required
+        />
+
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />  
+        <TextField
+          label="Email"
+          type="email"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+          <TextField
+          label="Password"
+          type="password"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <TextField
+          label="Confirm Password"
+          type="password"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+
+
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box sx={{ mt: 2 }}>
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Register
+          </Button>
+        </Box>
+         <Typography variant="body2" sx={{ mt: 2 }}>
+                Already have an account? <Link to="/login">Login</Link>
+              </Typography>
+      </form>
+    </Container>
   );
 };
 

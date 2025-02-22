@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -21,7 +23,7 @@ const LoginPage: React.FC = () => {
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
-      }`  `
+      }
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
@@ -32,31 +34,43 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography variant="h4" gutterBottom>
+          Login
+        </Typography>
+      </Box>
       <form onSubmit={handleLogin}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Login</button>
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <TextField
+          label="Password"
+          type="password"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box sx={{ mt: 2 }}>
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Login
+          </Button>
+        </Box>
       </form>
-    </div>
+      <Typography variant="body2" sx={{ mt: 2 }}>
+        Don't have an account? <Link to="/register">Register</Link>
+      </Typography>
+    </Container>
   );
 };
 

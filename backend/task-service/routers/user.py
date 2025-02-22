@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from passlib.context import CryptContext
 
 load_dotenv()
@@ -27,7 +27,7 @@ except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
 
 class User(BaseModel):
-    id: str
+    id: str = Field(..., alias="_id")
     username: str
     name: str
     last_name: str
@@ -54,12 +54,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
 @router.get("/users/me", response_model=User)
 async def get_current_user_profile(current_user: Dict = Depends(get_current_user)):
+    current_user["_id"] = str(current_user["_id"])  # Convert ObjectId to string
     return current_user
 
 @router.put("/users/me", response_model=User)
 async def update_current_user_profile(updated_user: User, current_user: Dict = Depends(get_current_user)):
     try:
-        result = users_collection.update_one({"_id": current_user["_id"]}, {"$set": updated_user.dict()})
+        result = users_collection.update_one({"_id": current_user["_id"]}, {"$set": updated_user.dict(by_alias=True)})
         if result.modified_count == 0:
             raise HTTPException(status_code=404, detail="User not found or no changes made")
         return updated_user

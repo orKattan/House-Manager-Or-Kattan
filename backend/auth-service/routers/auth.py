@@ -89,10 +89,15 @@ async def register_user(request: Request):
             print(f"Validation error: {e}")
             raise HTTPException(status_code=422, detail=e.errors())
 
-        existing_user = users_collection.find_one({"email": user_data.email})
-        if existing_user:
+        existing_user_email = users_collection.find_one({"email": user_data.email})
+        if existing_user_email:
             print("Email already registered")
             raise HTTPException(status_code=400, detail="Email already registered")
+
+        existing_user_username = users_collection.find_one({"username": user_data.username})
+        if existing_user_username:
+            print("Username already taken")
+            raise HTTPException(status_code=400, detail="Username already taken")
 
         hashed_password = get_password_hash(user_data.password)
         new_user = {

@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext"; // Import UserProvider
 import { TaskProvider } from "./contexts/TaskContext"; // Import TaskProvider
 import Navbar from "./components/Navbar";
@@ -15,18 +15,29 @@ const App: React.FC = () => {
     <UserProvider>
       <TaskProvider>
         <Router>
-          <Navbar />
-          <Switch>
-            <Route path="/" exact component={WelcomePage} />
-            <Route path="/HomePage" exact component={HomePage} />
-            <Route path="/calendar" component={CalendarPage} />
-            <Route path="/profile" component={ProfileEditPage} />
-            <Route path="/login" component={LoginPage} />
-            <Route path="/register" component={RegisterPage} />
-          </Switch>
+          <AppContent />
         </Router>
       </TaskProvider>
     </UserProvider>
+  );
+};
+
+const AppContent: React.FC = () => {
+  const location = useLocation();
+  const showNavbar = !["/", "/login", "/register"].includes(location.pathname);
+
+  return (
+    <>
+      {showNavbar && <Navbar />}
+      <Switch>
+        <Route path="/" exact component={WelcomePage} />
+        <Route path="/HomePage" exact component={HomePage} />
+        <Route path="/calendar" component={CalendarPage} />
+        <Route path="/profile" component={ProfileEditPage} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/register" component={RegisterPage} />
+      </Switch>
+    </>
   );
 };
 

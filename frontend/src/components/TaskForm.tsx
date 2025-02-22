@@ -7,12 +7,15 @@ const TaskForm: React.FC = () => {
   const { addTask } = useTaskContext();
   const { currentUser } = useUserContext();
   const [users, setUsers] = useState<User[]>([]);
+  const defaultDueDate = new Date().toISOString().split('T')[0];
+  const defaultStartTime = new Date().toISOString().split('T')[1].slice(0, 5);
+  const defaultEndTime = new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().split('T')[1].slice(0, 5);
   const [task, setTask] = useState<Omit<Task, 'id'>>({
     title: '',
     description: '',
-    dueDate: '',
-    startTime: '',
-    endTime: '',
+    dueDate: defaultDueDate,
+    startTime: defaultStartTime,
+    endTime: defaultEndTime,
     participants: [],
     recurring: false,
     category: TaskCategory.Bathroom,
@@ -81,9 +84,9 @@ const TaskForm: React.FC = () => {
         setTask({
           title: '',
           description: '',
-          dueDate: '',
-          startTime: '',
-          endTime: '',
+          dueDate: defaultDueDate,
+          startTime: defaultStartTime,
+          endTime: defaultEndTime,
           participants: [],
           recurring: false,
           category: TaskCategory.Bathroom,
