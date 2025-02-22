@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskCategory, User } from '../types';
 import { useTaskContext } from '../contexts/TaskContext';
 import { useUserContext } from '../contexts/UserContext';
+import ParticipantSelector from './ParticipantSelector';
 
 const TaskForm: React.FC = () => {
   const { addTask } = useTaskContext();
@@ -23,6 +24,7 @@ const TaskForm: React.FC = () => {
     status: TaskStatus.Pending,
     user: '',
   });
+  const [selectedParticipants, setSelectedParticipants] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,13 +59,7 @@ const TaskForm: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    if (name === "participants" && e.target instanceof HTMLSelectElement) {
-        const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
-        setTask(prevTask => ({ ...prevTask, participants: selectedOptions }));
-    } else {
-        setTask(prevTask => ({ ...prevTask, [name]: value }));
-    }
+    setTask(prevTask => ({ ...prevTask, [name]: value }));
   };
 
   const validateTask = (task: Omit<Task, 'id'>): boolean => {
@@ -79,7 +75,7 @@ const TaskForm: React.FC = () => {
     e.preventDefault();
     if (validateTask(task)) {
       try {
-        await addTask(task);
+        await addTask({ ...task, participants: selectedParticipants.map(user => user.id) });
         console.log("Task added successfully");
         setTask({
           title: '',
@@ -94,6 +90,7 @@ const TaskForm: React.FC = () => {
           status: TaskStatus.Pending,
           user: `${currentUser?.name} ${currentUser?.last_name}`,
         });
+        setSelectedParticipants([]);
       } catch (error) {
         console.error('Failed to add task:', error);
         setError('Failed to add task');
@@ -126,11 +123,11 @@ const TaskForm: React.FC = () => {
       </div>
       <div>
         <label>Participants:</label>
-        <select name="participants" multiple value={task.participants} onChange={handleChange}>
-          {users.map(user => (
-            <option key={user.id} value={user.id}>{`${user.name} ${user.last_name}`}</option>
-          ))}
-        </select>
+        <ParticipantSelector
+          users={users}
+          selectedParticipants={selectedParticipants}
+          setSelectedParticipants={setSelectedParticipants}
+        />
       </div>
       <div>
         <label>Recurring:</label>

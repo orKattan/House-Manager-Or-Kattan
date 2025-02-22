@@ -1,5 +1,5 @@
 import React from "react";
-
+import ParticipantSelector from "../components/ParticipantSelector";
 const CalendarPage: React.FC = () => {
   return (
     <div>

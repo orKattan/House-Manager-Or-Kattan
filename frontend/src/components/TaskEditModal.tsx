@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskCategory, User } from '../types';
 import { useTaskContext } from '../contexts/TaskContext';
+import ParticipantSelector from './ParticipantSelector';
 
 interface TaskEditModalProps {
   task: Task;
@@ -10,16 +11,11 @@ interface TaskEditModalProps {
 const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
   const { updateTask } = useTaskContext();
   const [users, setUsers] = useState<User[]>([]);
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description || '');
-  const [category, setCategory] = useState<TaskCategory>(task.category);
-  const [user, setUser] = useState(task.user || '');
-  const [status, setStatus] = useState<TaskStatus>(task.status);
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(task.priority || 'low');
-  const [participants, setParticipants] = useState(task.participants || []);
-  const [due_date, setDueDate] = useState(task.due_date);
-  const [startTime, setStartTime] = useState(task.start_time);
-  const [end_time, setend_time] = useState(task.end_time);
+  const [formData, setFormData] = useState<Task>({
+    ...task,
+    participants: task.participants || [],
+  });
+  const [selectedParticipants, setSelectedParticipants] = useState<User[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -31,7 +27,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        if (!response.ok) throw new Error(await response.text());
+        if (!response.ok) throw new Error('Failed to fetch users');
         const data = await response.json();
         setUsers(data);
       } catch (error) {
@@ -42,105 +38,60 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
     fetchUsers();
   }, []);
 
-  const handleSave = async () => {
-    const updatedTask = {
-      ...task,
-      title,
-      description,
-      category,
-      user,
-      status,
-      priority,
-      participants,
-      due_date,
-      startTime,
-      end_time,
-    };
-    await updateTask(task.id, updatedTask);
+  useEffect(() => {
+    setSelectedParticipants(users.filter(user => formData.participants.includes(user.id)));
+  }, [formData, users]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updateTask(task.id, { ...formData, participants: selectedParticipants.map(user => user.id) });
     onClose();
   };
 
   return (
     <div className="modal">
       <div className="modal-content">
-        <h2>Edit Task</h2>
-        <form onSubmit={handleSave}>
+        <span className="close" onClick={onClose}>&times;</span>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label>Title:</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
+            <label className="block text-sm font-medium text-gray-700">Title:</label>
+            <input type="text" name="title" value={formData.title} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Description:</label>
+            <textarea name="description" value={formData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Due Date:</label>
+            <input type="date" name="due_date" value={formData.due_date} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Start Time:</label>
+            <input type="time" name="start_time" value={formData.start_time} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">End Time:</label>
+            <input type="time" name="end_time" value={formData.end_time} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Participants:</label>
+            <ParticipantSelector
+              users={users}
+              selectedParticipants={selectedParticipants}
+              setSelectedParticipants={setSelectedParticipants}
             />
           </div>
           <div>
-            <label>Description:</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Due Date:</label>
-            <input
-              type="date"
-              name="due_date"
-              value={due_date}
-              onChange={(e) => setDueDate(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Start Time:</label>
-            <input
-              type="time"
-              name="startTime"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>End Time:</label>
-            <input
-              type="time"
-              name="end_time"
-              value={end_time}
-              onChange={(e) => setend_time(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Participants:</label>
-            <select
-              name="participants"
-              multiple
-              value={participants}
-              onChange={(e) => setParticipants(Array.from(e.target.selectedOptions, option => option.value))}
-            >
-              {users.map(user => (
-                <option key={user.id} value={user.id}>{`${user.name} ${user.last_name}`}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Recurring:</label>
-            <input
-              type="checkbox"
-              name="recurring"
-              checked={task.recurring}
-              onChange={(e) => setCategory(e.target.checked as unknown as TaskCategory)}
-            />
-          </div>
-          <div>
-            <label>Category:</label>
-            <select
-              name="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as TaskCategory)}
-              required
-            >
+            <label className="block text-sm font-medium text-gray-700">Category:</label>
+            <select name="category" value={formData.category} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
               <option value={TaskCategory.Bathroom}>Bathroom</option>
               <option value={TaskCategory.Bedroom}>Bedroom</option>
               <option value={TaskCategory.Garden}>Garden</option>
@@ -150,33 +101,22 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
             </select>
           </div>
           <div>
-            <label>Priority:</label>
-            <select
-              name="priority"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-              required
-            >
+            <label className="block text-sm font-medium text-gray-700">Priority:</label>
+            <select name="priority" value={formData.priority} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </select>
           </div>
           <div>
-            <label>Status:</label>
-            <select
-              name="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as TaskStatus)}
-              required
-            >
+            <label className="block text-sm font-medium text-gray-700">Status:</label>
+            <select name="status" value={formData.status} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
               <option value={TaskStatus.Pending}>Pending</option>
               <option value={TaskStatus.InProgress}>In Progress</option>
               <option value={TaskStatus.Completed}>Completed</option>
             </select>
           </div>
-          <button type="submit">Save Changes</button>
-          <button type="button" onClick={onClose}>Cancel</button>
+          <button type="submit" className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md">Save</button>
         </form>
       </div>
     </div>

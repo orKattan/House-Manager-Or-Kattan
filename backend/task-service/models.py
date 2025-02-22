@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import date, time, datetime, timedelta
 
 def default_due_date():
@@ -22,6 +22,7 @@ class Task(BaseModel):
     due_date: Optional[date] = Field(default_factory=default_due_date)
     start_time: Optional[time] = Field(default_factory=default_start_time)
     end_time: Optional[time] = Field(default_factory=default_end_time)
+    participants: List[str] = []
 
     class Config:
         allow_population_by_field_name = True

@@ -84,5 +84,5 @@ async def update_password(update_password_model: UpdatePasswordModel, current_us
 
 @router.get("/users", dependencies=[Depends(get_current_user)], response_model=List[Dict[str, str]])
 async def get_users():
-    users = users_collection.find({}, {"_id": 1, "name": 1})
-    return [{"id": str(user["_id"]), "name": user["name"]} for user in users]
+    users = users_collection.find({}, {"_id": 1, "name": 1, "last_name": 1})
+    return [{"id": str(user["_id"]), "name": user["name"], "last_name": user["last_name"]} for user in users]
