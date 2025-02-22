@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Task, TaskStatus, TaskCategory } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Task, TaskStatus, TaskCategory, User } from '../types';
 import { useTaskContext } from '../contexts/TaskContext';
 
 interface TaskEditModalProps {
@@ -9,21 +9,54 @@ interface TaskEditModalProps {
 
 const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
   const { updateTask } = useTaskContext();
-  const [editedTask, setEditedTask] = useState<Task>(task);
+  const [users, setUsers] = useState<User[]>([]);
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description || '');
+  const [category, setCategory] = useState<TaskCategory>(task.category);
+  const [user, setUser] = useState(task.user || '');
+  const [status, setStatus] = useState<TaskStatus>(task.status);
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(task.priority || 'low');
+  const [participants, setParticipants] = useState(task.participants || []);
+  const [dueDate, setDueDate] = useState(task.dueDate);
+  const [startTime, setStartTime] = useState(task.startTime);
+  const [endTime, setEndTime] = useState(task.endTime);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    if (name === 'participants') {
-      setEditedTask(prevTask => ({ ...prevTask, participants: value.split(',').map(participant => participant.trim()) }));
-    } else {
-      setEditedTask(prevTask => ({ ...prevTask, [name]: value }));
-    }
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:8002/users', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Updating task with ID:", editedTask.id);
-    await updateTask(editedTask.id, editedTask);
+    fetchUsers();
+  }, []);
+
+  const handleSave = async () => {
+    const updatedTask = {
+      ...task,
+      title,
+      description,
+      category,
+      user,
+      status,
+      priority,
+      participants,
+      dueDate,
+      startTime,
+      endTime,
+    };
+    await updateTask(task.id, updatedTask);
     onClose();
   };
 
@@ -31,38 +64,83 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
     <div className="modal">
       <div className="modal-content">
         <h2>Edit Task</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSave}>
           <div>
             <label>Title:</label>
-            <input type="text" name="title" value={editedTask.title} onChange={handleChange} required />
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
           </div>
           <div>
             <label>Description:</label>
-            <textarea name="description" value={editedTask.description} onChange={handleChange} />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
           <div>
             <label>Due Date:</label>
-            <input type="datetime-local" name="dueDate" value={editedTask.dueDate} onChange={handleChange} required />
+            <input
+              type="date"
+              name="dueDate"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              required
+            />
           </div>
           <div>
             <label>Start Time:</label>
-            <input type="datetime-local" name="startTime" value={editedTask.startTime} onChange={handleChange} required />
+            <input
+              type="time"
+              name="startTime"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required
+            />
           </div>
           <div>
             <label>End Time:</label>
-            <input type="datetime-local" name="endTime" value={editedTask.endTime} onChange={handleChange} required />
+            <input
+              type="time"
+              name="endTime"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              required
+            />
           </div>
           <div>
             <label>Participants:</label>
-            <input type="text" name="participants" value={editedTask.participants.join(', ')} onChange={handleChange} />
+            <select
+              name="participants"
+              multiple
+              value={participants}
+              onChange={(e) => setParticipants(Array.from(e.target.selectedOptions, option => option.value))}
+            >
+              {users.map(user => (
+                <option key={user.id} value={user.id}>{`${user.name} ${user.last_name}`}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label>Recurring:</label>
-            <input type="checkbox" name="recurring" checked={editedTask.recurring} onChange={e => setEditedTask(prevTask => ({ ...prevTask, recurring: e.target.checked }))} />
+            <input
+              type="checkbox"
+              name="recurring"
+              checked={task.recurring}
+              onChange={(e) => setCategory(e.target.checked as unknown as TaskCategory)}
+            />
           </div>
           <div>
             <label>Category:</label>
-            <select name="category" value={editedTask.category} onChange={handleChange} required>
+            <select
+              name="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as TaskCategory)}
+              required
+            >
               <option value={TaskCategory.Bathroom}>Bathroom</option>
               <option value={TaskCategory.Bedroom}>Bedroom</option>
               <option value={TaskCategory.Garden}>Garden</option>
@@ -73,7 +151,12 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
           </div>
           <div>
             <label>Priority:</label>
-            <select name="priority" value={editedTask.priority} onChange={handleChange} required>
+            <select
+              name="priority"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+              required
+            >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -81,7 +164,12 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
           </div>
           <div>
             <label>Status:</label>
-            <select name="status" value={editedTask.status} onChange={handleChange} required>
+            <select
+              name="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as TaskStatus)}
+              required
+            >
               <option value={TaskStatus.Pending}>Pending</option>
               <option value={TaskStatus.InProgress}>In Progress</option>
               <option value={TaskStatus.Completed}>Completed</option>

@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTaskContext } from '../contexts/TaskContext';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
 import { TaskCategory } from '../types';
 
 const HomePage: React.FC = () => {
-  const { fetchTasks } = useTaskContext();
+  const { fetchTasks, tasks } = useTaskContext();
   const [category, setCategory] = useState<string>('');
   const [user, setUser] = useState<string>('');
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      await fetchTasks();
+    };
+
+    loadTasks();
+  }, []); // Ensure this runs only once when the component mounts
 
   const handleFilterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +45,7 @@ const HomePage: React.FC = () => {
         </div>
         <button type="submit">Filter</button>
       </form>
-      <TaskList />
+      <TaskList tasks={tasks} />
     </div>
   );
 };

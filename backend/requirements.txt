@@ -1,7 +1,0 @@
-fastapi
-uvicorn[standard]
-pymongo
-passlib[bcrypt]
-pydantic[email]  
-python-jose[cryptography]
-python-multipart

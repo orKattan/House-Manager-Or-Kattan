@@ -18,21 +18,28 @@ const EditTask: React.FC = () => {
     category: TaskCategory.EntireHome,
     priority: 'low',
     status: TaskStatus.Pending,
+    user: '', // Add the user property here
   });
   const history = useHistory();
 
   useEffect(() => {
-    if (taskId) {
-      const taskToEdit = tasks.find(task => task.id === taskId);
+    const fetchTask = async () => {
+      await fetchTasks();
+      const taskToEdit = tasks.find(t => t.id === taskId);
       if (taskToEdit) {
         setTask(taskToEdit);
       }
-    }
-  }, [taskId, tasks]);
+    };
+    fetchTask();
+  }, [taskId, tasks, fetchTasks]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setTask(prevTask => ({ ...prevTask, [name]: value }));
+    if (name === 'participants') {
+      setTask(prevTask => ({ ...prevTask, participants: value.split(',').map(participant => participant.trim()) }));
+    } else {
+      setTask(prevTask => ({ ...prevTask, [name]: value }));
+    }
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,12 +47,10 @@ const EditTask: React.FC = () => {
     setTask(prevTask => ({ ...prevTask, [name]: checked }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (taskId) {
-      updateTask(taskId, task);
-      history.push(`/tasks/${taskId}`);
-    }
+    await updateTask(task.id, task);
+    history.push('/HomePage');
   };
 
   return (
@@ -103,6 +108,10 @@ const EditTask: React.FC = () => {
               <option key={status} value={status}>{status}</option>
             ))}
           </select>
+        </div>
+        <div>
+          <label>User</label>
+          <input type="text" name="user" value={task.user} onChange={handleChange} />
         </div>
         <button type="submit">Save</button>
       </form>

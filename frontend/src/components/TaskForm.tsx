@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { Task, TaskStatus, TaskCategory } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Task, TaskStatus, TaskCategory, User } from '../types';
 import { useTaskContext } from '../contexts/TaskContext';
+import { useUserContext } from '../contexts/UserContext';
 
 const TaskForm: React.FC = () => {
   const { addTask } = useTaskContext();
+  const { currentUser } = useUserContext();
+  const [users, setUsers] = useState<User[]>([]);
   const [task, setTask] = useState<Omit<Task, 'id'>>({
     title: '',
     description: '',
@@ -15,47 +18,89 @@ const TaskForm: React.FC = () => {
     category: TaskCategory.Bathroom,
     priority: 'low',
     status: TaskStatus.Pending,
+    user: '',
   });
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentUser) {
+      setTask(prevTask => ({
+        ...prevTask,
+        user: `${currentUser.name} ${currentUser.last_name}`,
+      }));
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:8002/users', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (name === 'participants') {
-      setTask(prevTask => ({ ...prevTask, participants: value.split(',').map(participant => participant.trim()) }));
+
+    if (name === "participants" && e.target instanceof HTMLSelectElement) {
+        const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+        setTask(prevTask => ({ ...prevTask, participants: selectedOptions }));
     } else {
-      setTask(prevTask => ({ ...prevTask, [name]: value }));
+        setTask(prevTask => ({ ...prevTask, [name]: value }));
     }
   };
 
   const validateTask = (task: Omit<Task, 'id'>): boolean => {
-    if (!task.title || !task.dueDate || !task.startTime || !task.endTime || !task.category || !task.priority || !task.status) {
-      alert('Please fill in all required fields.');
+    if (!task.title || !task.dueDate || !task.startTime || !task.endTime || !task.category || !task.priority || !task.status || !task.user) {
+      setError('Please fill in all required fields.');
       return false;
     }
+    setError(null);
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateTask(task)) {
-      await addTask(task);
-      console.log("Task added successfully");
-      setTask({
-        title: '',
-        description: '',
-        dueDate: '',
-        startTime: '',
-        endTime: '',
-        participants: [],
-        recurring: false,
-        category: TaskCategory.Bathroom,
-        priority: 'low',
-        status: TaskStatus.Pending,
-      });
+      try {
+        await addTask(task);
+        console.log("Task added successfully");
+        setTask({
+          title: '',
+          description: '',
+          dueDate: '',
+          startTime: '',
+          endTime: '',
+          participants: [],
+          recurring: false,
+          category: TaskCategory.Bathroom,
+          priority: 'low',
+          status: TaskStatus.Pending,
+          user: `${currentUser?.name} ${currentUser?.last_name}`,
+        });
+      } catch (error) {
+        console.error('Failed to add task:', error);
+        setError('Failed to add task');
+      }
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {error && <p>{error}</p>}
       <div>
         <label>Title:</label>
         <input type="text" name="title" value={task.title} onChange={handleChange} required />
@@ -66,19 +111,23 @@ const TaskForm: React.FC = () => {
       </div>
       <div>
         <label>Due Date:</label>
-        <input type="datetime-local" name="dueDate" value={task.dueDate} onChange={handleChange} required />
+        <input type="date" name="dueDate" value={task.dueDate} onChange={handleChange} required />
       </div>
       <div>
         <label>Start Time:</label>
-        <input type="datetime-local" name="startTime" value={task.startTime} onChange={handleChange} required />
+        <input type="time" name="startTime" value={task.startTime} onChange={handleChange} required />
       </div>
       <div>
         <label>End Time:</label>
-        <input type="datetime-local" name="endTime" value={task.endTime} onChange={handleChange} required />
+        <input type="time" name="endTime" value={task.endTime} onChange={handleChange} required />
       </div>
       <div>
         <label>Participants:</label>
-        <input type="text" name="participants" value={task.participants.join(', ')} onChange={handleChange} />
+        <select name="participants" multiple value={task.participants} onChange={handleChange}>
+          {users.map(user => (
+            <option key={user.id} value={user.id}>{`${user.name} ${user.last_name}`}</option>
+          ))}
+        </select>
       </div>
       <div>
         <label>Recurring:</label>
@@ -110,6 +159,10 @@ const TaskForm: React.FC = () => {
           <option value={TaskStatus.InProgress}>In Progress</option>
           <option value={TaskStatus.Completed}>Completed</option>
         </select>
+      </div>
+      <div>
+        <label>User:</label>
+        <input type="text" name="user" value={task.user} onChange={handleChange} required />
       </div>
       <button type="submit">Create Task</button>
     </form>

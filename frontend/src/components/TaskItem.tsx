@@ -33,9 +33,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     <div>
       <h3>{task.title}</h3>
       <p>{task.description}</p>
-      <p>Due Date: {new Date(task.dueDate).toLocaleString()}</p>
-      <p>Start Time: {new Date(task.startTime).toLocaleString()}</p>
-      <p>End Time: {new Date(task.endTime).toLocaleString()}</p>
+      <p>Due Date: {new Date(task.dueDate).toLocaleDateString()}</p>
+      <p>Start Time: {new Date(task.startTime).toLocaleTimeString()}</p>
+      <p>End Time: {new Date(task.endTime).toLocaleTimeString()}</p>
       <p>Participants: {task.participants ? task.participants.join(', ') : 'None'}</p>
       <p>Recurring: {task.recurring ? 'Yes' : 'No'}</p>
       <p>Category: {task.category}</p>

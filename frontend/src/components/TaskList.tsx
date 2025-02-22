@@ -1,15 +1,15 @@
 import React from 'react';
-import { useTaskContext } from '../contexts/TaskContext';
 import TaskItem from './TaskItem';
 import { Task } from '../types';
 
-const TaskList: React.FC = () => {
-  const { tasks } = useTaskContext();
-  console.log('Rendering TaskList with tasks:', tasks);
+interface TaskListProps {
+  tasks: Task[];
+}
 
+const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
   return (
     <ul>
-      {tasks.map((task: Task) => (
+      {tasks.map((task) => (
         <li key={task.id}>
           <TaskItem task={task} />
         </li>

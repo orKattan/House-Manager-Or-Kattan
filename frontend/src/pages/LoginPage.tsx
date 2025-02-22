@@ -21,11 +21,11 @@ const LoginPage: React.FC = () => {
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
-      }
+      }`  `
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
-      history.push('/home');
+      history.push('/HomePage');
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
     }

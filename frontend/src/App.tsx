@@ -1,29 +1,32 @@
-import React from 'react'; 
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import CalendarPage from './pages/CalendarPage';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
-import WelcomePage from './pages/WelcomePage';
-import TaskDetails from './pages/TaskDetails'; // Ensure this import exists
-import EditTask from './pages/EditTask'; // Ensure this import exists
-import { TaskProvider } from './contexts/TaskContext'; // Corrected import path
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { UserProvider } from "./contexts/UserContext"; // Import UserProvider
+import { TaskProvider } from "./contexts/TaskContext"; // Import TaskProvider
+import Navbar from "./components/Navbar";
+import WelcomePage from "./pages/WelcomePage";
+import HomePage from "./pages/HomePage";
+import CalendarPage from "./pages/CalendarPage";
+import ProfileEditPage from "./pages/ProfileEditPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 const App: React.FC = () => {
   return (
-    <TaskProvider>
-      <Router>
-        <Switch>
-          <Route path="/" exact component={WelcomePage} />
-          <Route path="/home" component={HomePage} />
-          <Route path="/calendar" component={CalendarPage} />
-          <Route path="/register" component={RegisterPage} />
-          <Route path="/login" component={LoginPage} />
-          {/* <Route path="/tasks/:taskId" component={TaskDetails} /> Ensure this route exists */}
-          {/* <Route path="/tasks/:taskId/edit" component={EditTask} /> Ensure this route exists */}
-        </Switch>
-      </Router>
-    </TaskProvider>
+    <UserProvider>
+      <TaskProvider>
+        <Router>
+          <Navbar />
+          <Switch>
+            <Route path="/" exact component={WelcomePage} />
+            <Route path="/HomePage" exact component={HomePage} />
+            <Route path="/calendar" component={CalendarPage} />
+            <Route path="/profile" component={ProfileEditPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/register" component={RegisterPage} />
+          </Switch>
+        </Router>
+      </TaskProvider>
+    </UserProvider>
   );
 };
 
