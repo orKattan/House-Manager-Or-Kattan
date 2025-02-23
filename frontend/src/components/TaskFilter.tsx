@@ -3,14 +3,13 @@ import { TaskCategory, TaskStatus, User } from '../types';
 import { useUserContext } from '../contexts/UserContext';
 
 interface TaskFilterProps {
-  onFilterChange: (filters: { category?: string; user?: string; status?: string; }) => void;
+  onFilterChange: (filters: { category?: string; user?: string; status?: string }) => void;
 }
 
 const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   const [category, setCategory] = useState<string>('');
   const [user, setUser] = useState<string>('');
   const [status, setStatus] = useState<string>('');
-
 
   const [users, setUsers] = useState<User[]>([]);
   const { currentUser } = useUserContext();
@@ -42,36 +41,45 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
     }
   }, [currentUser]);
 
-  const handleFilterChange = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     onFilterChange({ category, user, status });
   };
 
   return (
-    <div>
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="">All Category</option>
-        <option value={TaskCategory.Bathroom}>Bathroom</option>
-        <option value={TaskCategory.Bedroom}>Bedroom</option>
-        <option value={TaskCategory.Garden}>Garden</option>
-        <option value={TaskCategory.Kitchen}>Kitchen</option>
-        <option value={TaskCategory.Laundry}>Laundry</option>
-        <option value={TaskCategory.LivingRoom}>Living Room</option>
-      </select>
-      <select value={user} onChange={(e) => setUser(e.target.value)}>
-        <option value="">All Users</option>
-        {users.map((usr) => (
-          <option key={usr.id} value={usr.id}>{`${usr.name} ${usr.last_name}`}</option>
-        ))}
-      </select>
-      <select value={status} onChange={(e) => setStatus(e.target.value)}>
-        <option value="">All Status</option>
-        <option value={TaskStatus.Pending}>Pending</option>
-        <option value={TaskStatus.InProgress}>In Progress</option>
-        <option value={TaskStatus.Completed}>Completed</option>
-      </select>
-
-      <button onClick={handleFilterChange}>Apply Filters</button>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Filter by Category:</label>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="">All Category</option>
+          <option value={TaskCategory.Bathroom}>Bathroom</option>
+          <option value={TaskCategory.Bedroom}>Bedroom</option>
+          <option value={TaskCategory.Garden}>Garden</option>
+          <option value={TaskCategory.Kitchen}>Kitchen</option>
+          <option value={TaskCategory.Laundry}>Laundry</option>
+          <option value={TaskCategory.LivingRoom}>Living Room</option>
+        </select>
+      </div>
+      <div>
+        <label>Filter by User:</label>
+        <select value={user} onChange={(e) => setUser(e.target.value)}>
+          <option value="">All Users</option>
+          {users.map((usr) => (
+            <option key={usr.id} value={usr.id}>{`${usr.name} ${usr.last_name}`}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label>Filter by Status:</label>
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="">All Status</option>
+          <option value={TaskStatus.Pending}>Pending</option>
+          <option value={TaskStatus.InProgress}>In Progress</option>
+          <option value={TaskStatus.Completed}>Completed</option>
+        </select>
+      </div>
+      <button type="submit">Apply Filters</button>
+    </form>
   );
 };
 

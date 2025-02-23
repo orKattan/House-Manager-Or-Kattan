@@ -44,12 +44,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
 
   const handleDelete = async () => {
     try {
-      if (task.id) {
-        console.log("Deleting task with ID:", task.id);
-        await deleteTask(task.id);
-      } else {
-        console.error('Task ID is undefined');
-      }
+      await deleteTask(task.id);
     } catch (error) {
       console.error('Error deleting task:', error);
     }

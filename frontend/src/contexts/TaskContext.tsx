@@ -1,12 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { TaskStatus, TaskCategory, Task } from '../types';
+import { Task } from '../types';
 
 interface TaskContextProps {
   tasks: Task[];
   addTask: (task: Omit<Task, 'id'>) => Promise<void>;
-  updateTask: (taskId: string, task: Task) => Promise<void>;
+  updateTask: (taskId: string, task: Omit<Task, 'id'>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
-  fetchTasks: (filters?: { category?: string; user?: string; status?: string;}) => Promise<void>;
+  fetchTasks: (filters?: { category?: string; user?: string; status?: string }) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextProps | undefined>(undefined);
@@ -34,7 +34,7 @@ export const TaskProvider: React.FC = ({ children }) => {
     return headers;
   };
 
-  const fetchTasks = async (filters?: { category?: string; user?: string; status?: string; }) => {
+  const fetchTasks = async (filters?: { category?: string; user?: string; status?: string }) => {
     try {
       const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
       const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
@@ -58,22 +58,7 @@ export const TaskProvider: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
-    async function getTasks() {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'GET',
-          headers: getAuthHeaders(),
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const data = await response.json();
-        if (JSON.stringify(data) !== JSON.stringify(tasks)) {
-          setTasks(data);
-        }
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    }
-    getTasks();
+    fetchTasks();
   }, []); // Runs only once on mount
 
   const addTask = async (task: Omit<Task, 'id'>) => {
@@ -90,7 +75,7 @@ export const TaskProvider: React.FC = ({ children }) => {
     }
   };
 
-  const updateTask = async (taskId: string, task: Task) => {
+  const updateTask = async (taskId: string, task: Omit<Task, 'id'>) => {
     try {
       const response = await fetch(`${API_URL}/${taskId}`, {
         method: 'PUT',

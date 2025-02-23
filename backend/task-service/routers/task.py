@@ -42,96 +42,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     return user
 
-@router.get("", dependencies=[Depends(get_current_user)])
-def get_tasks():
-    tasks = list(tasks_collection.find())
-    for task in tasks:
-        task["_id"] = str(task["_id"])
-
-        # Convert datetime fields to string for frontend compatibility
-        if "due_date" in task and isinstance(task["due_date"], datetime):
-            task["due_date"] = task["due_date"].date().isoformat()  # Convert to YYYY-MM-DD
-
-        if "start_time" in task and isinstance(task["start_time"], str):
-            task["start_time"] = task["start_time"]
-
-        if "end_time" in task and isinstance(task["end_time"], str):
-            task["end_time"] = task["end_time"]
-
-    return tasks
-
-@router.post("", dependencies=[Depends(get_current_user)])
-def create_task(task: Task):
-    try:
-        task_dict = task.dict()
-        task_dict["createdAt"] = datetime.utcnow()
-        if isinstance(task_dict["due_date"], date):
-            task_dict["due_date"] = task_dict["due_date"].isoformat()
-        if isinstance(task_dict["start_time"], time):
-            task_dict["start_time"] = task_dict["start_time"].isoformat()
-        if isinstance(task_dict["end_time"], time):
-            task_dict["end_time"] = task_dict["end_time"].isoformat()
-        result = tasks_collection.insert_one(task_dict)
-        if not result.inserted_id:
-            raise HTTPException(status_code=500, detail="Failed to insert task")
-        return {"message": "Task created successfully", "task_id": str(result.inserted_id)}
-    except Exception as e:
-        print(f"Error creating task: {e}")  # Add logging for errors
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/{task_id}", dependencies=[Depends(get_current_user)])
-def get_task(task_id: str):
-    try:
-        if not ObjectId.is_valid(task_id):
-            raise HTTPException(status_code=400, detail="Invalid task ID")
-        task = tasks_collection.find_one({"_id": ObjectId(task_id)})
-        if not task:
-            raise HTTPException(status_code=404, detail="Task not found")
-        task["_id"] = str(task["_id"])  # Convert ObjectId to string
-        if "due_date" in task and isinstance(task["due_date"], str):
-            task["due_date"] = datetime.strptime(task["due_date"], "%Y-%m-%d").date().isoformat()
-        if "start_time" in task and isinstance(task["start_time"], str):
-            task["start_time"] = task["start_time"]
-        if "end_time" in task and isinstance(task["end_time"], str):
-            task["end_time"] = task["end_time"]
-        return task
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@router.put("/{task_id}", dependencies=[Depends(get_current_user)])
-def update_task(task_id: str, task: Task):
-    try:
-        if not ObjectId.is_valid(task_id):
-            raise HTTPException(status_code=400, detail="Invalid task ID")
-        existing_task = tasks_collection.find_one({"_id": ObjectId(task_id)})
-        if not existing_task:
-            raise HTTPException(status_code=404, detail="Task not found")
-        task_dict = task.dict()
-        if isinstance(task_dict["due_date"], date):
-            task_dict["due_date"] = task_dict["due_date"].isoformat()
-        if isinstance(task_dict["start_time"], time):
-            task_dict["start_time"] = task_dict["start_time"].isoformat()
-        if isinstance(task_dict["end_time"], time):
-            task_dict["end_time"] = task_dict["end_time"].isoformat()
-        result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": task_dict})
-        if result.modified_count == 0:
-            raise HTTPException(status_code=404, detail="Task not found or no changes made")
-        return {"message": "Task updated successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@router.delete("/{task_id}", dependencies=[Depends(get_current_user)])
-def delete_task(task_id: str):
-    try:
-        if not ObjectId.is_valid(task_id):
-            raise HTTPException(status_code=400, detail="Invalid task ID")
-        result = tasks_collection.delete_one({"_id": ObjectId(task_id)})
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Task not found")
-        return {"message": "Task deleted successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
 @router.get("", response_model=List[Task], dependencies=[Depends(get_current_user)])
 async def get_tasks(
     category: Optional[str] = Query(None),
@@ -157,10 +67,65 @@ async def get_tasks(
             task["end_time"] = task["end_time"]
     return tasks
 
+@router.post("", response_model=Task, dependencies=[Depends(get_current_user)])
+async def create_task(task: Task):
+    try:
+        task_dict = task.dict()
+        task_dict["createdAt"] = datetime.utcnow()
+        if isinstance(task_dict["due_date"], date):
+            task_dict["due_date"] = task_dict["due_date"].isoformat()
+        if isinstance(task_dict["start_time"], time):
+            task_dict["start_time"] = task_dict["start_time"].isoformat()
+        if isinstance(task_dict["end_time"], time):
+            task_dict["end_time"] = task_dict["end_time"].isoformat()
+        result = tasks_collection.insert_one(task_dict)
+        if not result.inserted_id:
+            raise HTTPException(status_code=500, detail="Failed to insert task")
+        task_dict["_id"] = str(result.inserted_id)
+        return task_dict
+    except Exception as e:
+        print(f"Error creating task: {e}")  # Add logging for errors
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/{task_id}", response_model=Task, dependencies=[Depends(get_current_user)])
+async def update_task(task_id: str, task: Task):
+    try:
+        if not ObjectId.is_valid(task_id):
+            raise HTTPException(status_code=400, detail="Invalid task ID")
+        existing_task = tasks_collection.find_one({"_id": ObjectId(task_id)})
+        if not existing_task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        task_dict = task.dict()
+        if isinstance(task_dict["due_date"], date):
+            task_dict["due_date"] = task_dict["due_date"].isoformat()
+        if isinstance(task_dict["start_time"], time):
+            task_dict["start_time"] = task_dict["start_time"].isoformat()
+        if isinstance(task_dict["end_time"], time):
+            task_dict["end_time"] = task_dict["end_time"].isoformat()
+        result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": task_dict})
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Task not found or no changes made")
+        task_dict["_id"] = task_id
+        return task_dict
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/distinct/{field}", dependencies=[Depends(get_current_user)])
 async def get_distinct_values(field: str):
     if field not in ["category", "user", "status"]:
         raise HTTPException(status_code=400, detail="Invalid field")
     values = tasks_collection.distinct(field)
     return values
+
+@router.delete("/{task_id}", dependencies=[Depends(get_current_user)])
+def delete_task(task_id: str):
+    try:
+        if not ObjectId.is_valid(task_id):
+            raise HTTPException(status_code=400, detail="Invalid task ID")
+        result = tasks_collection.delete_one({"_id": ObjectId(task_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Task not found")
+        return {"message": "Task deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
