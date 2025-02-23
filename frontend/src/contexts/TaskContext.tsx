@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { Task } from '../types';
 
 interface TaskContextProps {
@@ -34,7 +34,7 @@ export const TaskProvider: React.FC = ({ children }) => {
     return headers;
   };
 
-  const fetchTasks = async (filters?: { category?: string; user?: string; status?: string }) => {
+  const fetchTasks = useCallback(async (filters?: { category?: string; user?: string; status?: string }) => {
     try {
       const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
       const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
@@ -55,11 +55,11 @@ export const TaskProvider: React.FC = ({ children }) => {
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTasks();
-  }, []); // Runs only once on mount
+  }, [fetchTasks]); // Runs only once on mount
 
   const addTask = async (task: Omit<Task, 'id'>) => {
     try {

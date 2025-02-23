@@ -52,7 +52,7 @@ async def get_tasks(
     if category:
         query["category"] = category
     if user:
-        query["user"] = user
+        query["participants"] = user
     if status:
         query["status"] = status
 

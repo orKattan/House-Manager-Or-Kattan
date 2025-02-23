@@ -1,10 +1,18 @@
-import React from "react";
-import ParticipantSelector from "../components/ParticipantSelector";
+import React, { useEffect } from 'react';
+import { useTaskContext } from '../contexts/TaskContext';
+import TaskCalendar from '../components/TaskCalendar';
+
 const CalendarPage: React.FC = () => {
+  const { fetchTasks, tasks } = useTaskContext();
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
   return (
     <div>
-      <h1>📅 Calendar</h1>
-      <p>Manage your scheduled tasks here.</p>
+      <h1>Calendar</h1>
+      <TaskCalendar tasks={tasks} />
     </div>
   );
 };
