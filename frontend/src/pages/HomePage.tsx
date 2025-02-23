@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTaskContext } from '../contexts/TaskContext';
 import TaskForm from '../components/TaskForm';
-import TaskList from '../components/TaskList';
+import TaskListByCategory from '../components/TaskListByCategory';
 import TaskFilter from '../components/TaskFilter';
 import { Task } from '../types';
 
 const HomePage: React.FC = () => {
-  const { fetchTasks, tasks } = useTaskContext();
+  const { fetchTasks, tasks, deleteTask, updateTask } = useTaskContext();
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const initialLoad = useRef(true);
 
@@ -30,12 +30,20 @@ const HomePage: React.FC = () => {
     setFilteredTasks(tasks);
   }, [tasks]);
 
+  const handleDeleteTask = async (taskId: string) => {
+    await deleteTask(taskId);
+  };
+
+  const handleEditTask = async (task: Task) => {
+    await updateTask(task.id, task);
+  };
+
   return (
     <div>
       <h1>Task Manager</h1>
       <TaskForm />
       <TaskFilter onFilterChange={handleFilterChange} />
-      <TaskList tasks={filteredTasks} />
+      <TaskListByCategory tasks={filteredTasks} onDeleteTask={handleDeleteTask} onEditTask={handleEditTask} />
     </div>
   );
 };

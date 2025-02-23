@@ -3,15 +3,16 @@ import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Task } from '../types';
-import TaskDetailsModal from './TaskDetailsModal';
+import TaskEditModal from './TaskEditModal';
 
 const localizer = momentLocalizer(moment);
 
 interface TaskCalendarProps {
   tasks: Task[];
+  onEditTask: (task: Task) => void;
 }
 
-const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
+const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const events = tasks.map(task => ({
@@ -27,6 +28,11 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
     setSelectedTask(task || null);
   };
 
+  const handleSaveTask = (task: Task) => {
+    onEditTask(task);
+    setSelectedTask(null);
+  };
+
   return (
     <div>
       <Calendar
@@ -40,7 +46,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
         onSelectEvent={handleSelectEvent}
       />
       {selectedTask && (
-        <TaskDetailsModal task={selectedTask} onClose={() => setSelectedTask(null)} />
+        <TaskEditModal task={selectedTask} onClose={() => setSelectedTask(null)} onSave={handleSaveTask} />
       )}
     </div>
   );

@@ -8,7 +8,7 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
-  const { deleteTask } = useTaskContext();
+  const { deleteTask, updateTask } = useTaskContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [participantNames, setParticipantNames] = useState<string[]>([]);
@@ -55,6 +55,11 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     setIsEditModalOpen(true);
   };
 
+  const handleSaveTask = async (updatedTask: Task) => {
+    await updateTask(updatedTask.id, updatedTask);
+    setIsEditModalOpen(false);
+  };
+
   const formatTime = (timeString: string) => {
     if (!timeString) return 'N/A';
     const [hours, minutes] = timeString.split(':');
@@ -77,7 +82,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
       <button onClick={handleEdit}>Edit</button>
       <button onClick={handleDelete}>Delete</button>
       {isEditModalOpen && (
-        <TaskEditModal task={task} onClose={() => setIsEditModalOpen(false)} />
+        <TaskEditModal task={task} onClose={() => setIsEditModalOpen(false)} onSave={handleSaveTask} />
       )}
     </div>
   );

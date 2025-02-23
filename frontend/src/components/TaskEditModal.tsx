@@ -6,9 +6,10 @@ import ParticipantSelector from './ParticipantSelector';
 interface TaskEditModalProps {
   task: Task;
   onClose: () => void;
+  onSave: (task: Task) => void; // Add the onSave prop
 }
 
-const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
+const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose, onSave }) => {
   const { updateTask } = useTaskContext();
   const [users, setUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState<Task>({
@@ -53,6 +54,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateTask(task.id, { ...formData, participants: selectedParticipants.map(user => user.id) });
+    onSave({ ...formData, participants: selectedParticipants.map(user => user.id) }); // Call onSave with the updated task
     onClose();
   };
 
