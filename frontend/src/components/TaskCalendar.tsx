@@ -14,6 +14,7 @@ interface TaskCalendarProps {
 
 const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const events = tasks.map(task => ({
     id: task.id,
@@ -26,11 +27,13 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
   const handleSelectEvent = (event: any) => {
     const task = tasks.find(task => task.id === event.id);
     setSelectedTask(task || null);
+    setIsModalOpen(true);
   };
 
   const handleSaveTask = (task: Task) => {
     onEditTask(task);
     setSelectedTask(null);
+    setIsModalOpen(false);
   };
 
   return (
@@ -46,7 +49,12 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
         onSelectEvent={handleSelectEvent}
       />
       {selectedTask && (
-        <TaskEditModal task={selectedTask} onClose={() => setSelectedTask(null)} onSave={handleSaveTask} />
+        <TaskEditModal
+          open={isModalOpen}
+          task={selectedTask}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveTask}
+        />
       )}
     </div>
   );

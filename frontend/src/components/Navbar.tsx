@@ -1,10 +1,10 @@
 import React from "react";
-import { AppBar, Toolbar, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Typography } from "@mui/material";
 import { Link, useHistory } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 
 const Navbar: React.FC = () => {
-  const { logout } = useUserContext(); // Logout function
+  const { currentUser, logout } = useUserContext(); // Get currentUser and logout function
   const history = useHistory(); // Use history for navigation
 
   return (
@@ -21,6 +21,11 @@ const Navbar: React.FC = () => {
             👤 Profile
           </Button>
         </Box>
+        {currentUser && (
+          <Typography variant="h6" sx={{ mr: 2 }}>
+            Welcome, {currentUser.name} {currentUser.last_name}
+          </Typography>
+        )}
         <Button color="inherit" onClick={() => {
             logout();
             history.push("/"); 

@@ -14,15 +14,14 @@ const RoomTasksPage: React.FC = () => {
   useEffect(() => {
     const loadTasks = async () => {
       await fetchTasks({ category: room });
-      setRoomTasks(tasks);
     };
 
     loadTasks();
   }, [fetchTasks, room]);
 
   useEffect(() => {
-    setRoomTasks(tasks);
-  }, [tasks]);
+    setRoomTasks(tasks.filter(task => task.category === room));
+  }, [tasks, room]);
 
   const handleDeleteTask = async (taskId: string) => {
     await deleteTask(taskId);

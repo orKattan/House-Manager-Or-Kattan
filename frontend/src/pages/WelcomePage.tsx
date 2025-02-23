@@ -7,11 +7,12 @@ const WelcomePage: React.FC = () => {
     <Container maxWidth="sm" sx={{ textAlign: 'center', mt: 8 }}>
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="h3" gutterBottom>
-          Welcome to House Manager
+        Welcome to the House Management App!
         </Typography>
       </Box>
       <Typography variant="h6" gutterBottom>
-        Manage your household tasks efficiently
+      Easily organize and track household tasks with smart reminders and seamless collaboration.
+      Stay on top of everything and keep your home running smoothly!
       </Typography>
       <Box sx={{ mt: 4 }}>
         <Button
