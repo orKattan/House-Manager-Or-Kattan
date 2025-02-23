@@ -1,0 +1,56 @@
+.task-form {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.task-form h2 {
+  margin-top: 0;
+  text-align: center;
+  color: #333;
+}
+
+.task-form .form-group {
+  margin-bottom: 15px;
+}
+
+.task-form .form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.task-form .form-group input,
+.task-form .form-group textarea,
+.task-form .form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.task-form .form-group button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.task-form .form-group button:hover {
+  background-color: #0056b3;
+}
+
+.task-form .error-message {
+  color: red;
+  margin-bottom: 15px;
+  text-align: center;
+}

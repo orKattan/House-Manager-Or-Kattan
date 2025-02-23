@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
-      history.push('/HomePage');
+      history.push('/create-task');
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
     }

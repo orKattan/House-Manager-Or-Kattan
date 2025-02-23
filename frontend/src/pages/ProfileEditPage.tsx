@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../contexts/UserContext';
 import { User } from '../types';
+import '../App.css';
 
 const ProfileEditPage: React.FC = () => {
   const { user, updateUserProfile, updatePassword } = useUserContext();
@@ -51,6 +52,7 @@ const ProfileEditPage: React.FC = () => {
       await updatePassword(oldPassword, newPassword);
       setOldPassword('');
       setNewPassword('');
+      alert('Password updated successfully');
     } catch (error) {
       console.error('Failed to update password:', error);
       alert('Failed to update password');
@@ -58,39 +60,41 @@ const ProfileEditPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Edit Profile</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input type="text" name="username" value={formData.username} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>First Name:</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Last Name:</label>
-          <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-        </div>
-        <button type="submit">Update Profile</button>
-      </form>
-      <h2>Change Password</h2>
-      <form onSubmit={handlePasswordSubmit}>
-        <div>
-          <label>Old Password:</label>
-          <input type="password" name="oldPassword" value={oldPassword} onChange={handlePasswordChange} required />
-        </div>
-        <div>
-          <label>New Password:</label>
-          <input type="password" name="newPassword" value={newPassword} onChange={handlePasswordChange} required />
-        </div>
-        <button type="submit">Change Password</button>
-      </form>
+    <div className="profile-edit-page">
+      <div className="form-container">
+        <h1 className="form-header">Edit Profile</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Username:</label>
+            <input type="text" name="username" value={formData.username} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label>First Name:</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label>Last Name:</label>
+            <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label>Email:</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          </div>
+          <button type="submit">Update Profile</button>
+        </form>
+        <h2 className="form-header">Change Password</h2>
+        <form onSubmit={handlePasswordSubmit}>
+          <div className="form-group">
+            <label>Old Password:</label>
+            <input type="password" name="oldPassword" value={oldPassword} onChange={handlePasswordChange} required />
+          </div>
+          <div className="form-group">
+            <label>New Password:</label>
+            <input type="password" name="newPassword" value={newPassword} onChange={handlePasswordChange} required />
+          </div>
+          <button type="submit">Change Password</button>
+        </form>
+      </div>
     </div>
   );
 };

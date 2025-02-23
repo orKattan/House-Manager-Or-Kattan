@@ -1,0 +1,61 @@
+.home-page {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.task-form,
+.task-filter,
+.task-list {
+  margin-bottom: 20px;
+}
+
+.task-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.task-list > div {
+  flex: 1 1 calc(33.333% - 20px);
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-list h2 {
+  margin-top: 0;
+}
+
+.task-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.task-list li {
+  margin-bottom: 10px;
+}
+
+.task-list li strong {
+  display: block;
+  font-weight: bold;
+}
+
+.task-list li p {
+  margin: 0;
+}

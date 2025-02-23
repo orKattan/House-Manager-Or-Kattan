@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
     <AppBar position="static">
       <Toolbar>
         <Box sx={{ display: 'flex', flexGrow: 1 }}>
-          <Button color="inherit" component={Link} to="/HomePage">
+          <Button color="inherit" component={Link} to="/create-task">
             🏠 Home
           </Button>
           <Button color="inherit" component={Link} to="/calendar">
