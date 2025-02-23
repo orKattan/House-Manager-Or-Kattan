@@ -21,8 +21,6 @@ export interface Task {
   startTime: string; // Ensure this is a string in ISO format
   endTime: string; // Ensure this is a string in ISO format
   participants: string[];
-  recurring: boolean;
-  priority: 'low' | 'medium' | 'high';
   status: TaskStatus;
   category: TaskCategory;
 }

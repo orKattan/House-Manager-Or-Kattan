@@ -137,7 +137,6 @@ async def get_tasks(
     category: Optional[str] = Query(None),
     user: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
-    priority: Optional[str] = Query(None),
 ):
     query = {}
     if category:
@@ -146,8 +145,6 @@ async def get_tasks(
         query["user"] = user
     if status:
         query["status"] = status
-    if priority:
-        query["priority"] = priority
 
     tasks = list(tasks_collection.find(query))
     for task in tasks:
@@ -162,7 +159,7 @@ async def get_tasks(
 
 @router.get("/distinct/{field}", dependencies=[Depends(get_current_user)])
 async def get_distinct_values(field: str):
-    if field not in ["category", "user", "status", "priority"]:
+    if field not in ["category", "user", "status"]:
         raise HTTPException(status_code=400, detail="Invalid field")
     values = tasks_collection.distinct(field)
     return values

@@ -15,9 +15,7 @@ const EditTask: React.FC = () => {
     start_time: '',
     end_time: '',
     participants: [],
-    recurring: false,
     category: TaskCategory.EntireHome,
-    priority: 'low',
     status: TaskStatus.Pending,
     user: '',
   };
@@ -80,14 +78,6 @@ const EditTask: React.FC = () => {
           <option value={TaskCategory.Bathroom}>Bathroom</option>
           <option value={TaskCategory.LivingRoom}>Living Room</option>
           <option value={TaskCategory.Bedroom}>Bedroom</option>
-        </select>
-      </div>
-      <div>
-        <label>Priority</label>
-        <select name="priority" value={formData.priority} onChange={handleChange}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
         </select>
       </div>
       <div>

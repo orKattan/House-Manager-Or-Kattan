@@ -8,7 +8,5 @@ class Task(BaseModel):
     description: str
     due_date: datetime
     participants: List[str]
-    recurring: bool
-    priority: Literal['low', 'medium', 'high']
     status: Literal['pending', 'in_progress', 'completed']
     category: Literal['Bathroom', 'Kitchen', 'LivingRoom', 'Bedroom']

@@ -72,18 +72,6 @@ const ParticipantSelector: React.FC<ParticipantSelectorProps> = ({ users, select
           ))}
         </div>
       )}
-      <div>
-        {users.map(user => (
-          <div key={user.id}>
-            <input
-              type="checkbox"
-              checked={selectedParticipants.some(participant => participant.id === user.id)}
-              onChange={() => handleSelect(user)}
-            />
-            <label>{`${user.name} ${user.last_name}`}</label>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

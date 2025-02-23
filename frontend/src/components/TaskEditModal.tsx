@@ -101,14 +101,6 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, onClose }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Priority:</label>
-            <select name="priority" value={formData.priority} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700">Status:</label>
             <select name="status" value={formData.status} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
               <option value={TaskStatus.Pending}>Pending</option>

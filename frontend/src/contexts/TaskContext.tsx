@@ -6,7 +6,7 @@ interface TaskContextProps {
   addTask: (task: Omit<Task, 'id'>) => Promise<void>;
   updateTask: (taskId: string, task: Task) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
-  fetchTasks: (filters?: { category?: string; user?: string; status?: string; priority?: string }) => Promise<void>;
+  fetchTasks: (filters?: { category?: string; user?: string; status?: string;}) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextProps | undefined>(undefined);
@@ -34,7 +34,7 @@ export const TaskProvider: React.FC = ({ children }) => {
     return headers;
   };
 
-  const fetchTasks = async (filters?: { category?: string; user?: string; status?: string; priority?: string }) => {
+  const fetchTasks = async (filters?: { category?: string; user?: string; status?: string; }) => {
     try {
       const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
       const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;

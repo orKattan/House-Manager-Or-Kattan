@@ -18,7 +18,6 @@ class Task(BaseModel):
     category: Optional[str] = None
     user: Optional[str] = None
     status: Optional[str] = None
-    priority: Optional[str] = None
     due_date: Optional[date] = Field(default_factory=default_due_date)
     start_time: Optional[time] = Field(default_factory=default_start_time)
     end_time: Optional[time] = Field(default_factory=default_end_time)

@@ -8,7 +8,6 @@ def test_create_task():
         "title": "Test Task",
         "description": "Testing API",
         "due_date": "2025-01-01T00:00:00",
-        "priority": "high"
     })
     assert response.status_code == 200
     assert "task_id" in response.json()

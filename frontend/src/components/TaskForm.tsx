@@ -18,9 +18,7 @@ const TaskForm: React.FC = () => {
     start_time: defaultstart_time,
     end_time: defaultend_time,
     participants: [],
-    recurring: false,
     category: TaskCategory.Bathroom,
-    priority: 'low',
     status: TaskStatus.Pending,
     user: '',
   });
@@ -63,7 +61,7 @@ const TaskForm: React.FC = () => {
   };
 
   const validateTask = (task: Omit<Task, 'id'>): boolean => {
-    if (!task.title || !task.due_date || !task.start_time || !task.end_time || !task.category || !task.priority || !task.status || !task.user) {
+    if (!task.title || !task.due_date || !task.start_time || !task.end_time || !task.category || !task.status || !task.user) {
       setError('Please fill in all required fields.');
       return false;
     }
@@ -84,9 +82,7 @@ const TaskForm: React.FC = () => {
           start_time: defaultstart_time,
           end_time: defaultend_time,
           participants: [],
-          recurring: false,
           category: TaskCategory.Bathroom,
-          priority: 'low',
           status: TaskStatus.Pending,
           user: `${currentUser?.name} ${currentUser?.last_name}`,
         });
@@ -130,10 +126,6 @@ const TaskForm: React.FC = () => {
         />
       </div>
       <div>
-        <label>Recurring:</label>
-        <input type="checkbox" name="recurring" checked={task.recurring} onChange={e => setTask(prevTask => ({ ...prevTask, recurring: e.target.checked }))} />
-      </div>
-      <div>
         <label>Category:</label>
         <select name="category" value={task.category} onChange={handleChange} required>
           <option value={TaskCategory.Bathroom}>Bathroom</option>
@@ -145,24 +137,12 @@ const TaskForm: React.FC = () => {
         </select>
       </div>
       <div>
-        <label>Priority:</label>
-        <select name="priority" value={task.priority} onChange={handleChange} required>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
-      <div>
         <label>Status:</label>
         <select name="status" value={task.status} onChange={handleChange} required>
           <option value={TaskStatus.Pending}>Pending</option>
           <option value={TaskStatus.InProgress}>In Progress</option>
           <option value={TaskStatus.Completed}>Completed</option>
         </select>
-      </div>
-      <div>
-        <label>User:</label>
-        <input type="text" name="user" value={task.user} onChange={handleChange} required />
       </div>
       <button type="submit">Create Task</button>
     </form>

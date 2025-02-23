@@ -22,9 +22,7 @@ export interface Task {
   start_time: string;
   end_time: string;
   participants: string[];
-  recurring: boolean;
   category: TaskCategory;
-  priority: 'low' | 'medium' | 'high';
   status: TaskStatus;
   user: string;
 }

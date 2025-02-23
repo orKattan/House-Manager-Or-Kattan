@@ -3,14 +3,14 @@ import { TaskCategory, TaskStatus, User } from '../types';
 import { useUserContext } from '../contexts/UserContext';
 
 interface TaskFilterProps {
-  onFilterChange: (filters: { category?: string; user?: string; status?: string; priority?: string }) => void;
+  onFilterChange: (filters: { category?: string; user?: string; status?: string; }) => void;
 }
 
 const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   const [category, setCategory] = useState<string>('');
   const [user, setUser] = useState<string>('');
   const [status, setStatus] = useState<string>('');
-  const [priority, setPriority] = useState<string>('');
+
 
   const [users, setUsers] = useState<User[]>([]);
   const { currentUser } = useUserContext();
@@ -43,7 +43,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   }, [currentUser]);
 
   const handleFilterChange = () => {
-    onFilterChange({ category, user, status, priority });
+    onFilterChange({ category, user, status });
   };
 
   return (
@@ -69,12 +69,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
         <option value={TaskStatus.InProgress}>In Progress</option>
         <option value={TaskStatus.Completed}>Completed</option>
       </select>
-      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-        <option value="">All Priority</option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
+
       <button onClick={handleFilterChange}>Apply Filters</button>
     </div>
   );
