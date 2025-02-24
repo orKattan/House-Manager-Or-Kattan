@@ -18,6 +18,11 @@ const Sidebar: React.FC = () => {
         <li><Link to="/tasks/laundry">Laundry Tasks</Link></li>
         <li><Link to="/tasks/livingRoom">Living Room Tasks</Link></li>
       </ul>
+      <h2>Profile</h2>
+      <ul>
+      <li><Link to="/edit-account">Edit Account</Link></li>
+      <li><Link to="/edit-password">Edit Password</Link></li>
+      </ul>
     </div>
   );
 };

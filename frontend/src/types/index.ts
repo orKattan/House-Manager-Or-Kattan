@@ -1,3 +1,4 @@
+
 export enum TaskStatus {
   Pending = 'pending',
   InProgress = 'in_progress',
@@ -13,14 +14,24 @@ export enum TaskCategory {
   laundry = 'laundry',
 }
 
+
 export interface Task {
   id: string;
   title: string;
   description: string;
-  due_date: string; // Ensure this is a string in ISO format
-  startTime: string; // Ensure this is a string in ISO format
-  endTime: string; // Ensure this is a string in ISO format
+  due_date: string;
+  start_time: string;
+  end_time: string;
   participants: string[];
-  status: TaskStatus;
   category: TaskCategory;
+  status: TaskStatus;
+  user: string;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  name: string;
+  last_name: string;
+  email: string;
 }

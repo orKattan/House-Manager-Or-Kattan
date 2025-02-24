@@ -23,7 +23,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
   useEffect(() => {
     fetchTasks();
     fetchUsers();
-  }, []);
+  }, [fetchTasks, fetchUsers]);
 
   const handleSelectEvent = (task: Task) => {
     setSelectedTask(task);
@@ -37,6 +37,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
     setSelectedTask(null);
     fetchTasks();
   };
+
 
   const events = tasks.map(task => {
     const start = moment(`${task.due_date}T${task.start_time}`).toDate();
@@ -52,12 +53,17 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks, onEditTask }) => {
       status: task.status,
       category: task.category,
       start,
-      end
+      end,
     };
   });
 
   // Log the events array
   console.log('Events:', events);
+
+  const eventPropGetter = (event: any) => {
+    const backgroundColor = event.color;
+    return { style: { backgroundColor } };
+  };
 
   return (
     <div>

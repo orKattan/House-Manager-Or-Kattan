@@ -32,7 +32,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Fetch the current user from the backend or local storage
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch('http://localhost:8002/users/me', {
+        const response = await fetch('http://localhost:8001/users/me', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8002/users', {
+      const response = await fetch('http://localhost:8001/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (username: string, password: string) => {
     // Call API to authenticate user
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('http://localhost:8001/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch('http://localhost:8002/users/me', {
+      const response = await fetch('http://localhost:8001/users/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserProfile = async (updatedUser: User) => {
     try {
-      const response = await fetch('http://localhost:8002/users/me', {
+      const response = await fetch('http://localhost:8001/users/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updatePassword = async (oldPassword: string, newPassword: string) => {
     try {
-      const response = await fetch('http://localhost:8002/users/me/password', {
+      const response = await fetch('http://localhost:8001/users/me/password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

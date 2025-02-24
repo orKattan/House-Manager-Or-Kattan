@@ -28,8 +28,8 @@ services:
       - mongo-db
 
   calendar-service:
-    build: ./backend/calendar-service
-    container_name: house-manager-calendar-service
+    build: ./backend/notification-service
+    container_name: house-manager-notification-service
     ports:
       - "8003:8003"
     depends_on:

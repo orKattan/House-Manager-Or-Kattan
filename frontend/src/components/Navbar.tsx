@@ -22,9 +22,6 @@ const Navbar: React.FC = () => {
           <Button color="inherit" component={Link} to="/calendar">
             📅 Calendar
           </Button>
-          <Button color="inherit" component={Link} to="/profile">
-            👤 Profile
-          </Button>
         </Box>
         <Button color="inherit" onClick={() => {
             logout();

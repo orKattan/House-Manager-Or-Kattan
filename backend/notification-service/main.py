@@ -4,4 +4,4 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Calendar Service"}
+    return {"message": "Welcome to the notification Service"}
