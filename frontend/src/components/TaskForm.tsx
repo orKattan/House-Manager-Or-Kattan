@@ -18,7 +18,7 @@ const TaskForm: React.FC = () => {
     start_time: defaultstart_time,
     end_time: defaultend_time,
     participants: [],
-    category: TaskCategory.Bathroom,
+    category: TaskCategory.bathroom,
     status: TaskStatus.Pending,
     user: '',
   });
@@ -82,7 +82,7 @@ const TaskForm: React.FC = () => {
           start_time: defaultstart_time,
           end_time: defaultend_time,
           participants: [],
-          category: TaskCategory.Bathroom,
+          category: TaskCategory.bathroom,
           status: TaskStatus.Pending,
           user: `${currentUser?.name} ${currentUser?.last_name}`,
         });
@@ -128,12 +128,12 @@ const TaskForm: React.FC = () => {
       <div>
         <label>Category:</label>
         <select name="category" value={task.category} onChange={handleChange} required>
-          <option value={TaskCategory.Bathroom}>Bathroom</option>
-          <option value={TaskCategory.Bedroom}>Bedroom</option>
-          <option value={TaskCategory.Garden}>Garden</option>
-          <option value={TaskCategory.Kitchen}>Kitchen</option>
-          <option value={TaskCategory.Laundry}>Laundry</option>
-          <option value={TaskCategory.LivingRoom}>Living Room</option>
+          <option value={TaskCategory.bathroom}>Bathroom</option>
+          <option value={TaskCategory.bedroom}>Bedroom</option>
+          <option value={TaskCategory.garden}>Garden</option>
+          <option value={TaskCategory.kitchen}>Kitchen</option>
+          <option value={TaskCategory.laundry}>Laundry</option>
+          <option value={TaskCategory.livingRoom}>Living Room</option>
         </select>
       </div>
       <div>

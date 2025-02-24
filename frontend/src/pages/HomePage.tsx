@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTaskContext } from '../contexts/TaskContext';
 import TaskForm from '../components/TaskForm';
-import TaskListByCategory from '../components/TaskListByCategory';
 import TaskFilter from '../components/TaskFilter';
 import { Task } from '../types';
 
@@ -43,7 +42,7 @@ const HomePage: React.FC = () => {
       <h1>Task Manager</h1>
       <TaskForm />
       <TaskFilter onFilterChange={handleFilterChange} />
-      <TaskListByCategory tasks={filteredTasks} onDeleteTask={handleDeleteTask} onEditTask={handleEditTask} />
+
     </div>
   );
 };

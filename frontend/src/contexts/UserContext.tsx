@@ -10,6 +10,9 @@ interface UserContextProps {
   logout: () => void;
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
+  users: User[];
+  setUsers: (users: User[]) => void;
+  fetchUsers: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
@@ -17,6 +20,7 @@ const UserContext = createContext<UserContextProps | undefined>(undefined);
 export const UserProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     // Load user from local storage or API
@@ -44,7 +48,25 @@ export const UserProvider: React.FC = ({ children }) => {
     };
 
     fetchCurrentUser();
+    fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:8002/users', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
   const login = async (username: string, password: string) => {
     // Call API to authenticate user
@@ -127,7 +149,7 @@ export const UserProvider: React.FC = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, fetchUserProfile, updateUserProfile, updatePassword, login, logout, currentUser, setCurrentUser }}>
+    <UserContext.Provider value={{ user, fetchUserProfile, updateUserProfile, updatePassword, login, logout, currentUser, setCurrentUser, users, setUsers, fetchUsers }}>
       {children}
     </UserContext.Provider>
   );

@@ -1,11 +1,10 @@
 export enum TaskCategory {
-  Bathroom = 'Bathroom',
-  Bedroom = 'Bedroom',
-  EntireHome = 'EntireHome',
-  Garden = 'Garden',
-  Kitchen = 'Kitchen',
-  Laundry = 'Laundry',
-  LivingRoom = 'LivingRoom',
+  bathroom = 'bathroom',
+  bedroom = 'bedroom',
+  garden = 'garden',
+  kitchen = 'kitchen',
+  laundry = 'laundry',
+  livingRoom = 'livingRoom',
 }
 
 export enum TaskStatus {

@@ -5,12 +5,12 @@ export enum TaskStatus {
 }
 
 export enum TaskCategory {
-  Bathroom = 'Bathroom',
-  Kitchen = 'Kitchen',
-  LivingRoom = 'LivingRoom',
-  Bedroom = 'Bedroom',
-  Garden = 'Garden',
-  Laundry = 'Laundry',
+  bathroom = 'bathroom',
+  kitchen = 'kitchen',
+  bedroom = 'bedroom',
+  livingRoom = 'livingRoom',
+  garden = 'garden',
+  laundry = 'laundry',
 }
 
 export interface Task {

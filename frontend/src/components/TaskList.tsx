@@ -15,7 +15,7 @@ interface TaskListProps {
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, onDeleteTask, onEditTask }) => {
   const { fetchTasks, deleteTask, updateTask } = useTaskContext();
-  const [users, setUsers] = useState<User[]>([]);
+  const { fetchUsers, users } = useUserContext();
   const [filters, setFilters] = useState({
     title: '',
     category: '',
@@ -29,25 +29,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onDeleteTask, onEditTask }) 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('http://localhost:8002/users', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -112,7 +95,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onDeleteTask, onEditTask }) 
   }, {} as Record<string, Task[]>);
 
   const getUserName = (userId: string) => {
-    const user = users.find(user => user.id === userId);
+    const user = users.find((user: User) => user.id === userId);
     return user ? `${user.name} ${user.last_name}` : 'Unknown User';
   };
 
@@ -137,12 +120,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onDeleteTask, onEditTask }) 
               fullWidth
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value={TaskCategory.Bathroom}>Bathroom</MenuItem>
-              <MenuItem value={TaskCategory.Bedroom}>Bedroom</MenuItem>
-              <MenuItem value={TaskCategory.Garden}>Garden</MenuItem>
-              <MenuItem value={TaskCategory.Kitchen}>Kitchen</MenuItem>
-              <MenuItem value={TaskCategory.Laundry}>Laundry</MenuItem>
-              <MenuItem value={TaskCategory.LivingRoom}>Living Room</MenuItem>
+              <MenuItem value={TaskCategory.bathroom}>Bathroom</MenuItem>
+              <MenuItem value={TaskCategory.bedroom}>Bedroom</MenuItem>
+              <MenuItem value={TaskCategory.garden}>Garden</MenuItem>
+              <MenuItem value={TaskCategory.kitchen}>Kitchen</MenuItem>
+              <MenuItem value={TaskCategory.laundry}>Laundry</MenuItem>
+              <MenuItem value={TaskCategory.livingRoom}>Living Room</MenuItem>
             </TextField>
             <TextField
               label="Status"
@@ -172,7 +155,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onDeleteTask, onEditTask }) 
                   </Box>
                 )}
               >
-                {users.map((user) => (
+                {users.map((user: User) => (
                   <MenuItem key={user.id} value={user.id}>
                     {user.name} {user.last_name}
                   </MenuItem>
@@ -207,7 +190,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onDeleteTask, onEditTask }) 
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
               {tasks.map(task => (
-                <TaskItem key={task.id} task={task} onDeleteTask={onDeleteTask} onEditTask={onEditTask} />
+                <TaskItem key={task.id} task={task} users={users} onDeleteTask={onDeleteTask} onEditTask={onEditTask} />
               ))}
             </Box>
           </Box>

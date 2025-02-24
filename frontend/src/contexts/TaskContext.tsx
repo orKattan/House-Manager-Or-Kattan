@@ -36,26 +36,41 @@ export const TaskProvider: React.FC = ({ children }) => {
 
   const fetchTasks = useCallback(async (filters?: { category?: string; user?: string; status?: string }) => {
     try {
+      console.log("Fetching tasks with filters:", filters);  // ✅ בודק מה נשלח לפונקציה
       const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
       const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
+      
+      console.log("Requesting URL:", url);  // ✅ בודק איזה URL נשלח לשרת
+
       const response = await fetch(url, {
         method: 'GET',
         headers: getAuthHeaders(),
       });
-      if (!response.ok) throw new Error(await response.text());
+
+      console.log("Response status:", response.status);  // ✅ בודק את סטטוס התגובה מהשרת
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error:", errorText);
+        throw new Error(errorText);
+      }
+
       const data = await response.json();
       const tasksWithIds = data.map((task: any) => ({
         ...task,
         id: task._id,
-        due_date: task.due_date ? task.due_date.split("T")[0] : "", // Extract only the date
-        startTime: task.start_time || "", // Ensure empty string if undefined
-        endTime: task.end_time || "", // Ensure empty string if undefined
+        due_date: task.due_date ? task.due_date.split("T")[0] : "", 
+        startTime: task.start_time || "", 
+        endTime: task.end_time || "", 
       }));
+
+      console.log("Fetched tasks:", tasksWithIds);  // ✅ מציג את הנתונים שהתקבלו מהשרת
       setTasks(tasksWithIds);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
   }, []);
+
 
   useEffect(() => {
     fetchTasks();

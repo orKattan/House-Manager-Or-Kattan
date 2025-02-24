@@ -21,7 +21,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ open, onClose, task, onSa
     start_time: '',
     end_time: '',
     participants: [],
-    category: TaskCategory.Bathroom,
+    category: TaskCategory.bathroom,
     status: TaskStatus.Pending,
     user: '',
   });

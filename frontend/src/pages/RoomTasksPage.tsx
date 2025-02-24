@@ -1,45 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTaskContext } from '../contexts/TaskContext';
-import TaskListByCategory from '../components/TaskListByCategory';
-import Sidebar from '../components/Sidebar';
+import { Box, Typography } from '@mui/material';
+import TaskItem from '../components/TaskItem';
 import { Task } from '../types';
-import './RoomTasksPage.css';
+
+interface TaskItemProps {
+  task: Task;
+  onDeleteTask: (taskId: string) => void;
+  onEditTask: (task: Task) => void;
+}
 
 const RoomTasksPage: React.FC = () => {
   const { room } = useParams<{ room: string }>();
   const { fetchTasks, tasks, deleteTask, updateTask } = useTaskContext();
-  const [roomTasks, setRoomTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    const loadTasks = async () => {
-      await fetchTasks({ category: room });
-    };
+    fetchTasks({ category: room });
+  }, [room, fetchTasks]);
 
-    loadTasks();
-  }, [fetchTasks, room]);
+  const filteredTasks = tasks.filter(task => task.category === room);
 
-  useEffect(() => {
-    setRoomTasks(tasks.filter(task => task.category === room));
-  }, [tasks, room]);
-
-  const handleDeleteTask = async (taskId: string) => {
-    await deleteTask(taskId);
-  };
-
-  const handleEditTask = async (task: Task) => {
-    await updateTask(task.id, task);
+  const handleEditTask = (task: Task) => {
+    updateTask(task.id, task);
   };
 
   return (
-    <div className="room-tasks-page">
-      <div className="main-content">
-        <h1>{room.charAt(0).toUpperCase() + room.slice(1)} Tasks</h1>
-        <div className="task-list">
-          <TaskListByCategory tasks={roomTasks} onDeleteTask={handleDeleteTask} onEditTask={handleEditTask} />
-        </div>
-      </div>
-    </div>
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        {room.charAt(0).toUpperCase() + room.slice(1)} Tasks
+      </Typography>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+        {filteredTasks.map(task => (
+          <TaskItem key={task.id} task={task} users={[]} onDeleteTask={deleteTask} onEditTask={handleEditTask} />
+        ))}
+      </Box>
+    </Box>
   );
 };
 

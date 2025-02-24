@@ -40,7 +40,6 @@ const AppContent: React.FC = () => {
         <div className="main-content">
           <Switch>
             <Route path="/" exact component={WelcomePage} />
-            {/* <Route path="/HomePage" exact component={HomePage} /> */}
             <Route path="/calendar" component={CalendarPage} />
             <Route path="/profile" component={ProfileEditPage} />
             <Route path="/login" component={LoginPage} />

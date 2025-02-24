@@ -9,4 +9,4 @@ class Task(BaseModel):
     due_date: datetime
     participants: List[str]
     status: Literal['pending', 'in_progress', 'completed']
-    category: Literal['Bathroom', 'Kitchen', 'LivingRoom', 'Bedroom']
+    category: Literal['bathroom', 'bedroom', 'garden', 'kitchen', 'laundry', 'livingRoom']

@@ -19,7 +19,7 @@ const CreateTaskPage: React.FC = () => {
     start_time: defaultstart_time,
     end_time: defaultend_time,
     participants: [],
-    category: TaskCategory.Bathroom,
+    category: TaskCategory.bathroom,
     status: TaskStatus.Pending,
     user: `${currentUser?.name} ${currentUser?.last_name}`,
   });
@@ -83,7 +83,7 @@ const CreateTaskPage: React.FC = () => {
           start_time: defaultstart_time,
           end_time: defaultend_time,
           participants: [],
-          category: TaskCategory.Bathroom,
+          category: TaskCategory.bathroom,
           status: TaskStatus.Pending,
           user: `${currentUser?.name} ${currentUser?.last_name}`,
         });
@@ -179,12 +179,12 @@ const CreateTaskPage: React.FC = () => {
             select
             required
           >
-            <MenuItem value={TaskCategory.Bathroom}>Bathroom</MenuItem>
-            <MenuItem value={TaskCategory.Bedroom}>Bedroom</MenuItem>
-            <MenuItem value={TaskCategory.Garden}>Garden</MenuItem>
-            <MenuItem value={TaskCategory.Kitchen}>Kitchen</MenuItem>
-            <MenuItem value={TaskCategory.Laundry}>Laundry</MenuItem>
-            <MenuItem value={TaskCategory.LivingRoom}>Living Room</MenuItem>
+            <MenuItem value={TaskCategory.bathroom}>Bathroom</MenuItem>
+            <MenuItem value={TaskCategory.bedroom}>Bedroom</MenuItem>
+            <MenuItem value={TaskCategory.garden}>Garden</MenuItem>
+            <MenuItem value={TaskCategory.kitchen}>Kitchen</MenuItem>
+            <MenuItem value={TaskCategory.laundry}>Laundry</MenuItem>
+            <MenuItem value={TaskCategory.livingRoom}>Living Room</MenuItem>
           </TextField>
           <TextField
             label="Status"

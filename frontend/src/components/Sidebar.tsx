@@ -16,7 +16,7 @@ const Sidebar: React.FC = () => {
         <li><Link to="/tasks/garden">Garden Tasks</Link></li>
         <li><Link to="/tasks/kitchen">Kitchen Tasks</Link></li>
         <li><Link to="/tasks/laundry">Laundry Tasks</Link></li>
-        <li><Link to="/tasks/living-room">Living Room Tasks</Link></li>
+        <li><Link to="/tasks/livingRoom">Living Room Tasks</Link></li>
       </ul>
     </div>
   );

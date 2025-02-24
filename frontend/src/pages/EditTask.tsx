@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { useTaskContext } from '../contexts/TaskContext';
-import { Task, TaskCategory, TaskStatus } from '../types';
+import { Task, TaskCategory , TaskStatus } from '../types';
 
 const EditTask: React.FC = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -15,7 +15,7 @@ const EditTask: React.FC = () => {
     start_time: '',
     end_time: '',
     participants: [],
-    category: TaskCategory.EntireHome,
+    category: TaskCategory.bathroom,
     status: TaskStatus.Pending,
     user: '',
   };
@@ -73,11 +73,12 @@ const EditTask: React.FC = () => {
       <div>
         <label>Category</label>
         <select name="category" value={formData.category} onChange={handleChange}>
-          <option value={TaskCategory.EntireHome}>Entire Home</option>
-          <option value={TaskCategory.Kitchen}>Kitchen</option>
-          <option value={TaskCategory.Bathroom}>Bathroom</option>
-          <option value={TaskCategory.LivingRoom}>Living Room</option>
-          <option value={TaskCategory.Bedroom}>Bedroom</option>
+          <option value={TaskCategory.bathroom}>Entire Home</option>
+          <option value={TaskCategory.bedroom}>Kitchen</option>
+          <option value={TaskCategory.kitchen}>Bathroom</option>
+          <option value={TaskCategory.livingRoom}>Living Room</option>
+          <option value={TaskCategory.garden}>Bedroom</option>
+          <option value={TaskCategory.laundry}>Laundry</option>
         </select>
       </div>
       <div>
