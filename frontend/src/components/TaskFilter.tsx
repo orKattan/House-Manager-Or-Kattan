@@ -8,7 +8,7 @@ import TaskList from './TaskList';
 import ParticipantSelector from './ParticipantSelector';
 
 interface TaskFilterProps {
-  onFilterChange: (filters: { category?: string; status?: string; users?: string[]; participants?: string[]; due_date?: string }) => Promise<void>;
+  onFilterChange: (filters: { category?: string; status?: TaskStatus; users?: string[]; participants?: string[]; due_date?: string }) => Promise<void>;
 }
 
 const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
@@ -17,7 +17,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
     title: '',
     category: '',
-    status: '',
+    status: '' as TaskStatus,
     users: [] as string[],
     participants: [] as string[],
     due_date: '',

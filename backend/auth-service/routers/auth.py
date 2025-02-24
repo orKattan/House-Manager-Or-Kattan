@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from typing import List, Dict
 import os
 from dotenv import load_dotenv
 
@@ -30,7 +31,7 @@ except Exception as e:
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
-class UserCreate(BaseModel):
+class User(BaseModel):
     username: str
     password: str
     name: str
@@ -44,6 +45,11 @@ class Token(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+class UpdatePasswordModel(BaseModel):
+    old_password: str
+    new_password: str
+
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
@@ -84,7 +90,7 @@ async def register_user(request: Request):
         print(f"Received payload: {payload}")
 
         try:
-            user_data = UserCreate(**payload)
+            user_data = User(**payload)
         except ValidationError as e:
             print(f"Validation error: {e}")
             raise HTTPException(status_code=422, detail=e.errors())
@@ -151,3 +157,37 @@ async def login(request: Request):
         print(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@router.get("/users/me", response_model=User)
+async def get_current_user_profile(current_user: Dict = Depends(get_current_user)):
+    current_user["_id"] = str(current_user["_id"])  # Convert ObjectId to string
+    return current_user
+
+@router.put("/users/me", response_model=User)
+async def update_current_user_profile(updated_user: User, current_user: Dict = Depends(get_current_user)):
+    try:
+        result = users_collection.update_one({"_id": current_user["_id"]}, {"$set": updated_user.dict(by_alias=True)})
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="User not found or no changes made")
+        return updated_user
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/users/me/password", response_model=Dict[str, str])
+async def update_password(update_password_model: UpdatePasswordModel, current_user: Dict = Depends(get_current_user)):
+    try:
+        user = users_collection.find_one({"_id": current_user["_id"]})
+        if not user or not pwd_context.verify(update_password_model.old_password, user["password"]):
+            raise HTTPException(status_code=400, detail="Old password is incorrect")
+        
+        hashed_password = pwd_context.hash(update_password_model.new_password)
+        result = users_collection.update_one({"_id": current_user["_id"]}, {"$set": {"password": hashed_password}})
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="User not found or no changes made")
+        return {"message": "Password updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/users", dependencies=[Depends(get_current_user)], response_model=List[Dict[str, str]])
+async def get_users():
+    users = users_collection.find({}, {"_id": 1, "name": 1, "last_name": 1})
+    return [{"id": str(user["_id"]), "name": user["name"], "last_name": user["last_name"]} for user in users]

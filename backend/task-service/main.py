@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from pymongo import MongoClient
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
-from routers import task, user
+from routers import task
 from dotenv import load_dotenv
 from typing import List, Optional
 from models import Task
@@ -33,7 +33,7 @@ app.add_middleware(
 
 # Include the task and user routers
 app.include_router(task.router, prefix="/tasks")
-app.include_router(user.router, prefix="")
+
 
 @app.get("/")
 def read_root():

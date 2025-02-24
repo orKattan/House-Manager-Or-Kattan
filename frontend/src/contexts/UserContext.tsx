@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '../types';
+import { User, EmailNotification } from '../types';
 
 interface UserContextProps {
   user: User | null;
@@ -13,6 +13,7 @@ interface UserContextProps {
   users: User[];
   setUsers: (users: User[]) => void;
   fetchUsers: () => Promise<void>;
+  sendNotification: (notification: EmailNotification) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
@@ -23,13 +24,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // Load user from local storage or API
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
 
-    // Fetch the current user from the backend or local storage
     const fetchCurrentUser = async () => {
       try {
         const response = await fetch('http://localhost:8001/users/me', {
@@ -69,8 +68,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (username: string, password: string) => {
-    // Call API to authenticate user
-    const response = await fetch('http://localhost:8001/auth/login', {
+    const response = await fetch('http://localhost:8001/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -148,8 +146,30 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const sendNotification = async (notification: EmailNotification) => {
+    try {
+      const response = await fetch('http://localhost:8003/send-email/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notification),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email notification');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error sending email notification:', error);
+      throw error;
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, fetchUserProfile, updateUserProfile, updatePassword, login, logout, currentUser, setCurrentUser, users, setUsers, fetchUsers }}>
+    <UserContext.Provider value={{ user, fetchUserProfile, updateUserProfile, updatePassword, login, logout, currentUser, setCurrentUser, users, setUsers, fetchUsers, sendNotification }}>
       {children}
     </UserContext.Provider>
   );
@@ -162,6 +182,7 @@ export const useUserContext = () => {
   }
   return context;
 };
+
 
 // AuthContext integration
 interface AuthContextProps {

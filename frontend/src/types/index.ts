@@ -14,7 +14,6 @@ export enum TaskCategory {
   laundry = 'laundry',
 }
 
-
 export interface Task {
   id: string;
   title: string;
@@ -34,4 +33,10 @@ export interface User {
   name: string;
   last_name: string;
   email: string;
+}
+
+export interface EmailNotification {
+  subject: string;
+  recipients: string[];
+  body: string;
 }
