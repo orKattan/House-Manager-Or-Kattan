@@ -1,28 +1,40 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTaskContext } from '../contexts/TaskContext';
+import { useUserContext } from '../contexts/UserContext';
 import { Box, Typography } from '@mui/material';
 import TaskItem from '../components/TaskItem';
+import TaskEditModal from '../components/TaskEditModal';
 import { Task } from '../types';
-
-interface TaskItemProps {
-  task: Task;
-  onDeleteTask: (taskId: string) => void;
-  onEditTask: (task: Task) => void;
-}
 
 const RoomTasksPage: React.FC = () => {
   const { room } = useParams<{ room: string }>();
-  const { fetchTasks, tasks, deleteTask, updateTask } = useTaskContext();
+  const { tasks, fetchTasks, deleteTask, updateTask } = useTaskContext();
+  const { users, fetchUsers } = useUserContext();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchTasks({ category: room });
-  }, [room, fetchTasks]);
+    fetchUsers();
+  }, [room ]);
 
   const filteredTasks = tasks.filter(task => task.category === room);
 
   const handleEditTask = (task: Task) => {
-    updateTask(task.id, task);
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveTask = async (updatedTask: Task) => {
+    await updateTask(updatedTask.id, updatedTask);
+    setIsModalOpen(false);
+    setSelectedTask(null);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTask(null);
   };
 
   return (
@@ -32,9 +44,18 @@ const RoomTasksPage: React.FC = () => {
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
         {filteredTasks.map(task => (
-          <TaskItem key={task.id} task={task} users={[]} onDeleteTask={deleteTask} onEditTask={handleEditTask} />
+          <TaskItem key={task.id} task={task} users={users} onDeleteTask={deleteTask} onEditTask={handleEditTask} />
         ))}
       </Box>
+      {selectedTask && (
+        <TaskEditModal
+          open={isModalOpen}
+          task={selectedTask}
+          onClose={handleCloseModal}
+          onSave={handleSaveTask}
+          users={users}
+        />
+      )}
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 
 interface UserContextProps {
@@ -17,7 +17,7 @@ interface UserContextProps {
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
-export const UserProvider: React.FC = ({ children }) => {
+export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -159,6 +159,46 @@ export const useUserContext = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error('useUserContext must be used within a UserProvider');
+  }
+  return context;
+};
+
+// AuthContext integration
+interface AuthContextProps {
+  isAuthenticated: boolean;
+  login: () => void;
+  logout: () => void;
+  token: string | null; // Add token property
+}
+
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+
+  const login = () => {
+    setIsAuthenticated(true);
+    setToken(localStorage.getItem('token'));
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setToken(null);
+    localStorage.removeItem('token');
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, token }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuthContext = (): AuthContextProps => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuthContext must be used within an AuthProvider');
   }
   return context;
 };

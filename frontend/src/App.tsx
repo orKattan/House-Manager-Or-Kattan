@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
+import { AuthProvider } from "./contexts/UserContext"; // Import AuthProvider from UserContext
 import { UserProvider } from "./contexts/UserContext"; // Import UserProvider
 import { TaskProvider } from "./contexts/TaskContext"; // Import TaskProvider
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar"; // Import Sidebar
 import WelcomePage from "./pages/WelcomePage";
-import HomePage from "./pages/HomePage";
 import CalendarPage from "./pages/CalendarPage";
 import ProfileEditPage from "./pages/ProfileEditPage";
 import LoginPage from "./pages/LoginPage";
@@ -17,13 +17,15 @@ import './App.css'; // Import App.css for layout styles
 
 const App: React.FC = () => {
   return (
-    <UserProvider>
-      <TaskProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </TaskProvider>
-    </UserProvider>
+    <AuthProvider>
+      <UserProvider>
+        <TaskProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </TaskProvider>
+      </UserProvider>
+    </AuthProvider>
   );
 };
 

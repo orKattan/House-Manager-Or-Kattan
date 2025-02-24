@@ -10,6 +10,11 @@ const Navbar: React.FC = () => {
   return (
     <AppBar position="static">
       <Toolbar>
+      {currentUser && (
+          <Typography variant="h6" sx={{ mr: 2 }}>
+            Welcome, {currentUser.name} {currentUser.last_name}
+          </Typography>
+        )}
         <Box sx={{ display: 'flex', flexGrow: 1 }}>
           <Button color="inherit" component={Link} to="/create-task">
             🏠 Home
@@ -21,11 +26,6 @@ const Navbar: React.FC = () => {
             👤 Profile
           </Button>
         </Box>
-        {currentUser && (
-          <Typography variant="h6" sx={{ mr: 2 }}>
-            Welcome, {currentUser.name} {currentUser.last_name}
-          </Typography>
-        )}
         <Button color="inherit" onClick={() => {
             logout();
             history.push("/"); 

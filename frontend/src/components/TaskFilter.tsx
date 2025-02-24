@@ -4,6 +4,7 @@ import { useUserContext } from '../contexts/UserContext';
 import { Container, TextField, Button, Typography, Box, Paper, MenuItem, Select, InputLabel, FormControl, Chip, SelectChangeEvent } from '@mui/material';
 import { Task, TaskStatus, TaskCategory, User } from '../types';
 import TaskEditModal from './TaskEditModal';
+import TaskList from './TaskList';
 import ParticipantSelector from './ParticipantSelector';
 
 interface TaskFilterProps {
@@ -12,7 +13,7 @@ interface TaskFilterProps {
 
 const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   const { fetchTasks, tasks, deleteTask, updateTask } = useTaskContext();
-  const [users, setUsers] = useState<User[]>([]);
+  const { fetchUsers, users } = useUserContext();
   const [filters, setFilters] = useState({
     title: '',
     category: '',
@@ -26,25 +27,8 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('http://localhost:8002/users', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-
     fetchUsers();
-  }, []);
+  }, []); // Only call fetchUsers once when the component mounts
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -98,15 +82,6 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
     const isDueDateMatch = !filters.due_date || new Date(task.due_date) <= new Date(filters.due_date);
     return isUserMatch && isDueDateMatch;
   });
-
-  const tasksByCategory = filteredTasks.reduce((acc, task) => {
-    const category = task.category || 'other';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(task);
-    return acc;
-  }, {} as Record<string, Task[]>);
 
   const getUserName = (userId: string) => {
     const user = users.find(user => user.id === userId);
@@ -169,7 +144,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
                   </Box>
                 )}
               >
-                {users.map((user) => (
+                {users.map((user: User) => (
                   <MenuItem key={user.id} value={user.id}>
                     {user.name} {user.last_name}
                   </MenuItem>
@@ -196,41 +171,20 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
           </Box>
         </form>
       </Paper>
-      <Box sx={{ mt: 4 }}>
-        {Object.entries(tasksByCategory).map(([category, tasks]) => (
-          <Box key={category} sx={{ mb: 4 }}>
-            <Typography variant="h5" gutterBottom>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-              {tasks.map(task => (
-                <Box key={task.id} sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 2, boxShadow: 1, width: '100%' }}>
-                  <Typography variant="h6">{task.title}</Typography>
-                  <Typography variant="body1">{task.description}</Typography>
-                  <Typography variant="body2">Due Date: {task.due_date}</Typography>
-                  <Typography variant="body2">Start Time: {task.start_time}</Typography>
-                  <Typography variant="body2">End Time: {task.end_time}</Typography>
-                  <Typography variant="body2">Category: {task.category}</Typography>
-                  <Typography variant="body2">Status: {task.status}</Typography>
-                  <Typography variant="body2">
-                    Participants: {task.participants.map((p: string) => getUserName(p)).join(', ')}
-                  </Typography>
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                    <Button variant="contained" color="primary" onClick={() => handleEditTask(task)}>
-                      Edit
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => handleDeleteTask(task.id)}>
-                      Delete
-                    </Button>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        ))}
-      </Box>
+      <TaskList
+        tasks={filteredTasks}
+        users={users}
+        onDeleteTask={handleDeleteTask}
+        onEditTask={handleEditTask}
+      />
       {selectedTask && (
-        <TaskEditModal open={isModalOpen} onClose={handleCloseModal} task={selectedTask} onSave={handleSaveTask} />
+        <TaskEditModal
+          open={isModalOpen}
+          task={selectedTask}
+          onClose={handleCloseModal}
+          onSave={handleSaveTask}
+          users={users} // Pass the users prop to TaskEditModal
+        />
       )}
     </Container>
   );

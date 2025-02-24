@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react';
-import { useTaskContext } from '../contexts/TaskContext';
+import React from 'react';
 import TaskCalendar from '../components/TaskCalendar';
-import { Task } from '../types';
+import { useTaskContext } from '../contexts/TaskContext';
+import { Task } from '../types'; // Import the Task type
 
 const CalendarPage: React.FC = () => {
-  const { fetchTasks, tasks, updateTask } = useTaskContext();
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+  const { tasks, updateTask } = useTaskContext();
 
   const handleEditTask = async (task: Task) => {
     await updateTask(task.id, task);

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { Task } from '../types';
+import { useAuthContext } from './UserContext'; // Import useAuthContext from UserContext
 
 interface TaskContextProps {
   tasks: Task[];
@@ -21,33 +22,33 @@ export const useTaskContext = () => {
 
 export const TaskProvider: React.FC = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const { token } = useAuthContext();
   const API_URL = 'http://localhost:8002/tasks'; // Ensure the correct endpoint
 
   const getAuthHeaders = (): HeadersInit => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    const token = localStorage.getItem('token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
     return headers;
   };
 
-  const fetchTasks = useCallback(async (filters?: { category?: string; user?: string; status?: string }) => {
+  const fetchTasks = useCallback(async (filters?: { category?: string; user?: string; status?: string }): Promise<void> => {
     try {
-      console.log("Fetching tasks with filters:", filters);  // ✅ בודק מה נשלח לפונקציה
+      console.log("Fetching tasks with filters:", filters);  // ✅ Log the filters being sent to the function
       const queryParams = filters ? new URLSearchParams(filters as any).toString() : '';
       const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
       
-      console.log("Requesting URL:", url);  // ✅ בודק איזה URL נשלח לשרת
+      console.log("Requesting URL:", url);  // ✅ Log the URL being sent to the server
 
       const response = await fetch(url, {
         method: 'GET',
         headers: getAuthHeaders(),
       });
 
-      console.log("Response status:", response.status);  // ✅ בודק את סטטוס התגובה מהשרת
+      console.log("Response status:", response.status);  // ✅ Log the response status from the server
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -64,12 +65,12 @@ export const TaskProvider: React.FC = ({ children }) => {
         endTime: task.end_time || "", 
       }));
 
-      console.log("Fetched tasks:", tasksWithIds);  // ✅ מציג את הנתונים שהתקבלו מהשרת
+      console.log("Fetched tasks:", tasksWithIds);  // ✅ Log the data received from the server
       setTasks(tasksWithIds);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
-  }, []);
+  }, [token]);
 
 
   useEffect(() => {
@@ -92,12 +93,18 @@ export const TaskProvider: React.FC = ({ children }) => {
 
   const updateTask = async (taskId: string, task: Omit<Task, 'id'>) => {
     try {
+      console.log("Updating task:", taskId, task);  // Log the task ID and task data being sent
       const response = await fetch(`${API_URL}/${taskId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(task),
       });
-      if (!response.ok) throw new Error(await response.text());
+      console.log("Response status:", response.status);  // Log the response status
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error:", errorText);
+        throw new Error(errorText);
+      }
       await fetchTasks();
     } catch (error) {
       console.error('Error updating task:', error);

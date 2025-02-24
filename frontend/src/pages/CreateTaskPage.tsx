@@ -7,8 +7,7 @@ import { Task, TaskStatus, TaskCategory, User } from '../types';
 
 const CreateTaskPage: React.FC = () => {
   const { addTask } = useTaskContext();
-  const { currentUser } = useUserContext();
-  const [users, setUsers] = useState<User[]>([]);
+  const { currentUser, fetchUsers, users } = useUserContext();
   const defaultdue_date = new Date().toISOString().split('T')[0];
   const defaultstart_time = new Date().toISOString().split('T')[1].slice(0, 5);
   const defaultend_time = new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().split('T')[1].slice(0, 5);
@@ -36,25 +35,8 @@ const CreateTaskPage: React.FC = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('http://localhost:8002/users', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-
     fetchUsers();
-  }, []);
+  }, []); // Only call fetchUsers once when the component mounts
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -206,15 +188,6 @@ const CreateTaskPage: React.FC = () => {
             selectedParticipants={selectedParticipants}
             setSelectedParticipants={setSelectedParticipants}
           />
-          <Box sx={{ mt: 2 }}>
-            <TextField
-              label="User"
-              variant="outlined"
-              value={task.user}
-              onChange={(e) => setTask(prevTask => ({ ...prevTask, user: e.target.value }))}
-              fullWidth
-            />
-          </Box>
           <Box sx={{ mt: 2 }}>
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Create Task
