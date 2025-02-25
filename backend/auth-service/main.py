@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from pymongo import MongoClient
@@ -7,6 +7,7 @@ from routers import auth
 from dotenv import load_dotenv
 import os
 from fastapi.security import OAuth2PasswordRequestForm
+from typing import List
 
 load_dotenv()
 
@@ -19,9 +20,16 @@ if not JWT_SECRET_KEY:
 app = FastAPI()
 
 # Add CORS middleware
+origins = [
+    "http://localhost:3000",  # React frontend
+    "http://localhost:8001",  # Auth service
+    "http://localhost:8002",  # Task service
+    "http://localhost:8003",  # Notification service
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to your frontend's URL in production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,13 +38,6 @@ app.add_middleware(
 client = MongoClient(MONGO_URI)
 db = client["house_manager"]
 users_collection = db["users"]
-
-class User(BaseModel):
-    username: str
-    password: str
-    name: str
-    last_name: str
-    email: EmailStr
 
 app.include_router(auth.router)
 

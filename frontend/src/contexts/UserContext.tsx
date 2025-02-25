@@ -26,7 +26,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user'); // Remove invalid user data
+      }
     }
 
     const fetchCurrentUser = async () => {
@@ -48,6 +53,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     fetchCurrentUser();
     fetchUsers();
+
+    return () => {
+      // Cleanup function to cancel any ongoing asynchronous tasks
+      setUser(null);
+      setCurrentUser(null);
+      setUsers([]);
+    };
   }, []);
 
   const fetchUsers = async () => {
@@ -61,6 +73,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       if (!response.ok) throw new Error(await response.text());
       const data = await response.json();
+      console.log('Fetched users:', data); // Log fetched users
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);

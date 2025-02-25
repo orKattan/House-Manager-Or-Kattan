@@ -32,8 +32,16 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 class User(BaseModel):
+    id: str
     username: str
     password: str
+    name: str
+    last_name: str
+    email: EmailStr
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
     name: str
     last_name: str
     email: EmailStr
@@ -157,12 +165,12 @@ async def login(request: Request):
         print(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/users/me", response_model=User)
+@router.get("/users/me", response_model=UserResponse)
 async def get_current_user_profile(current_user: Dict = Depends(get_current_user)):
     current_user["_id"] = str(current_user["_id"])  # Convert ObjectId to string
     return current_user
 
-@router.put("/users/me", response_model=User)
+@router.put("/users/me", response_model=UserResponse)
 async def update_current_user_profile(updated_user: User, current_user: Dict = Depends(get_current_user)):
     try:
         result = users_collection.update_one({"_id": current_user["_id"]}, {"$set": updated_user.dict(by_alias=True)})
@@ -187,7 +195,29 @@ async def update_password(update_password_model: UpdatePasswordModel, current_us
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/users", dependencies=[Depends(get_current_user)], response_model=List[Dict[str, str]])
+@router.get("/users", dependencies=[Depends(get_current_user)], response_model=List[UserResponse])
 async def get_users():
-    users = users_collection.find({}, {"_id": 1, "name": 1, "last_name": 1})
-    return [{"id": str(user["_id"]), "name": user["name"], "last_name": user["last_name"]} for user in users]
+    users = []
+    for user in users_collection.find():
+        users.append(UserResponse(
+            id=str(user["_id"]),
+            username=user["username"],
+            name=user["name"],
+            last_name=user["last_name"],
+            email=user["email"]
+        ))
+    return users
+
+# Mock current user for demonstration purposes
+@router.get("/users/me", response_model=UserResponse)
+async def get_current_user():
+    current_user = users_collection.find_one({"username": "current_user"})
+    if not current_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserResponse(
+        id=str(current_user["_id"]),
+        username=current_user["username"],
+        name=current_user["name"],
+        last_name=current_user["last_name"],
+        email=current_user["email"]
+    )

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Box, TextField, Button, Typography, MenuItem } from '@mui/material';
-import { Task, TaskStatus, TaskCategory, User } from '../types';
+import { Task, TaskStatus, TaskCategory, User, EmailNotification } from '../types';
 import ParticipantSelector from './ParticipantSelector';
+import { useUserContext } from '../contexts/UserContext';
 
 interface TaskEditModalProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface TaskEditModalProps {
 }
 
 const TaskEditModal: React.FC<TaskEditModalProps> = ({ open, task, onClose, onSave, users }) => {
+  const { sendNotification } = useUserContext();
   const [editedTask, setEditedTask] = useState<Task>(task);
   const [selectedParticipants, setSelectedParticipants] = useState<User[]>([]);
 
@@ -27,6 +29,22 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ open, task, onClose, onSa
 
   const handleSave = () => {
     onSave({ ...editedTask, participants: selectedParticipants.map(user => user.id) });
+  };
+
+  const handleSendNotification = async () => {
+    const participantEmails = selectedParticipants.map(user => user.email);
+    const notification: EmailNotification = {
+      subject: `Task "${editedTask.title}" Updated`,
+      recipients: participantEmails,
+      body: `The task "${editedTask.title}" has been updated. Please check the details.`,
+    };
+
+    try {
+      await sendNotification(notification);
+      alert('Notification sent successfully');
+    } catch (error) {
+      alert('Failed to send notification');
+    }
   };
 
   return (
@@ -136,9 +154,12 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ open, task, onClose, onSa
           selectedParticipants={selectedParticipants}
           setSelectedParticipants={setSelectedParticipants}
         />
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
           <Button variant="contained" color="primary" onClick={handleSave} fullWidth>
             Save
+          </Button>
+          <Button variant="contained" color="secondary" onClick={handleSendNotification} fullWidth>
+            Send Notification
           </Button>
         </Box>
       </Box>
