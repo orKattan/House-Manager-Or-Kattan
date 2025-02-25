@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useHistory, Link} from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
-
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -35,6 +34,7 @@ const RegisterPage: React.FC = () => {
 
       history.push('/login');
     } catch (error) {
+      console.error('Error during registration:', error);
       setError('Registration failed. Please try again.');
     }
   };
@@ -47,7 +47,6 @@ const RegisterPage: React.FC = () => {
         </Typography>
       </Box>
       <form onSubmit={handleRegister}>
-
         <TextField
           label="First Name"
           variant="outlined"
@@ -66,7 +65,6 @@ const RegisterPage: React.FC = () => {
           onChange={(e) => setLastName(e.target.value)}
           required
         />
-
         <TextField
           label="Username"
           variant="outlined"
@@ -75,7 +73,7 @@ const RegisterPage: React.FC = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
-        />  
+        />
         <TextField
           label="Email"
           type="email"
@@ -86,8 +84,7 @@ const RegisterPage: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-
-          <TextField
+        <TextField
           label="Password"
           type="password"
           variant="outlined"
@@ -107,17 +104,15 @@ const RegisterPage: React.FC = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-
-
         {error && <Alert severity="error">{error}</Alert>}
         <Box sx={{ mt: 2 }}>
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Register
           </Button>
         </Box>
-         <Typography variant="body2" sx={{ mt: 2 }}>
-                Already have an account? <Link to="/login">Login</Link>
-              </Typography>
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Already have an account? <Link to="/login">Login</Link>
+        </Typography>
       </form>
     </Container>
   );

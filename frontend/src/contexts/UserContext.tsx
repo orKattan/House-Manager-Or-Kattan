@@ -13,7 +13,7 @@ interface UserContextProps {
   users: User[];
   setUsers: (users: User[]) => void;
   fetchUsers: () => Promise<void>;
-  sendNotification: (notification: EmailNotification) => Promise<void>;
+  sendNotification: (notification: EmailNotification) => Promise<void>; // Add sendNotification method
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
@@ -36,11 +36,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const fetchCurrentUser = async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found');
         const response = await fetch('http://localhost:8001/users/me', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
           },
         });
         if (!response.ok) throw new Error(await response.text());
@@ -64,11 +66,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUsers = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
       if (!response.ok) throw new Error(await response.text());
@@ -108,11 +112,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUserProfile = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
       if (!response.ok) throw new Error(await response.text());
@@ -125,11 +131,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserProfile = async (updatedUser: User) => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(updatedUser),
       });
@@ -143,11 +151,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updatePassword = async (oldPassword: string, newPassword: string) => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users/me/password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
       });
@@ -195,7 +205,6 @@ export const useUserContext = () => {
   }
   return context;
 };
-
 
 // AuthContext integration
 interface AuthContextProps {

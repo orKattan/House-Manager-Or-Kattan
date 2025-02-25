@@ -5,9 +5,10 @@ from pymongo import MongoClient
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Optional
 import os
 from dotenv import load_dotenv
+import logging
 
 # Ensure load_dotenv() is called before accessing environment variables
 load_dotenv()
@@ -32,7 +33,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 class User(BaseModel):
-    id: str
+    id: Optional[str] = None  # Make id optional
     username: str
     password: str
     name: str
@@ -95,22 +96,22 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 async def register_user(request: Request):
     try:
         payload = await request.json()
-        print(f"Received payload: {payload}")
+        logging.info(f"Received payload: {payload}")
 
         try:
             user_data = User(**payload)
         except ValidationError as e:
-            print(f"Validation error: {e}")
+            logging.error(f"Validation error: {e}")
             raise HTTPException(status_code=422, detail=e.errors())
 
         existing_user_email = users_collection.find_one({"email": user_data.email})
         if existing_user_email:
-            print("Email already registered")
+            logging.warning("Email already registered")
             raise HTTPException(status_code=400, detail="Email already registered")
 
         existing_user_username = users_collection.find_one({"username": user_data.username})
         if existing_user_username:
-            print("Username already taken")
+            logging.warning("Username already taken")
             raise HTTPException(status_code=400, detail="Username already taken")
 
         hashed_password = get_password_hash(user_data.password)
@@ -122,32 +123,34 @@ async def register_user(request: Request):
             "email": user_data.email
         }
         users_collection.insert_one(new_user)
-        print("User registered successfully")
+        logging.info("User registered successfully")
         return {"message": "User registered successfully"}
     except HTTPException as e:
-        print(f"HTTPException during registration: {e.detail}")
+        logging.error(f"HTTPException during registration: {e.detail}")
         raise e
     except Exception as e:
-        print(f"Error during registration: {e}")
+        logging.error(f"Error during registration: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/login", response_model=Token)
 async def login(request: Request):
     try:
         payload = await request.json()
-        print(f"Received payload: {payload}")
+        logging.info(f"Received payload: {payload}")
 
         try:
             user_data = UserLogin(**payload)
         except ValidationError as e:
-            print(f"Validation error: {e}")
+            logging.error(f"Validation error: {e}")
             raise HTTPException(status_code=422, detail=e.errors())
 
         user = users_collection.find_one({"username": user_data.username})
         if not user:
+            logging.warning("Login failed. Please check your credentials and try again.")
             raise HTTPException(status_code=400, detail="Login failed. Please check your credentials and try again.")
 
         if not verify_password(user_data.password, user["password"]):
+            logging.warning("Login failed. Please check your credentials and try again.")
             raise HTTPException(status_code=400, detail="Login failed. Please check your credentials and try again.")
 
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -160,15 +163,22 @@ async def login(request: Request):
             "token_type": "bearer"
         }
     except HTTPException as e:
+        logging.error(f"HTTPException during login: {e.detail}")
         raise e
     except Exception as e:
-        print(f"Error during login: {e}")
+        logging.error(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/users/me", response_model=UserResponse)
 async def get_current_user_profile(current_user: Dict = Depends(get_current_user)):
     current_user["_id"] = str(current_user["_id"])  # Convert ObjectId to string
-    return current_user
+    return UserResponse(
+        id=current_user["_id"],
+        username=current_user["username"],
+        name=current_user["name"],
+        last_name=current_user["last_name"],
+        email=current_user["email"]
+    )
 
 @router.put("/users/me", response_model=UserResponse)
 async def update_current_user_profile(updated_user: User, current_user: Dict = Depends(get_current_user)):
@@ -207,17 +217,3 @@ async def get_users():
             email=user["email"]
         ))
     return users
-
-# Mock current user for demonstration purposes
-@router.get("/users/me", response_model=UserResponse)
-async def get_current_user():
-    current_user = users_collection.find_one({"username": "current_user"})
-    if not current_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return UserResponse(
-        id=str(current_user["_id"]),
-        username=current_user["username"],
-        name=current_user["name"],
-        last_name=current_user["last_name"],
-        email=current_user["email"]
-    )
