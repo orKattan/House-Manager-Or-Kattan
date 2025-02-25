@@ -17,7 +17,7 @@ const RoomTasksPage: React.FC = () => {
   useEffect(() => {
     fetchTasks({ category: room });
     fetchUsers();
-  }, [room ]);
+  }, []);
 
   const filteredTasks = tasks.filter(task => task.category === room);
 

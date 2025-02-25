@@ -7,10 +7,15 @@ const Navbar: React.FC = () => {
   const { currentUser, logout } = useUserContext(); // Get currentUser and logout function
   const history = useHistory(); // Use history for navigation
 
+  const handleLogout = () => {
+    logout();
+    history.push('/'); 
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
-      {currentUser && (
+        {currentUser && (
           <Typography variant="h6" sx={{ mr: 2 }}>
             Welcome, {currentUser.name} {currentUser.last_name}
           </Typography>
@@ -23,12 +28,8 @@ const Navbar: React.FC = () => {
             📅 Calendar
           </Button>
         </Box>
-        <Button color="inherit" onClick={() => {
-            logout();
-            history.push("/"); 
-          }}
-        >
-             Logout
+        <Button color="inherit" onClick={handleLogout}>
+          Logout
         </Button>
       </Toolbar>
     </AppBar>

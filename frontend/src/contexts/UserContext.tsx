@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, EmailNotification } from '../types';
+import { useAuth } from './AuthContext';
 
 interface UserContextProps {
   user: User | null;
@@ -13,60 +14,58 @@ interface UserContextProps {
   users: User[];
   setUsers: (users: User[]) => void;
   fetchUsers: () => Promise<void>;
-  sendNotification: (notification: EmailNotification) => Promise<void>; // Add sendNotification method
+  sendNotification: (notification: EmailNotification) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { isAuthenticated, token, logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('user'); // Remove invalid user data
+    if (isAuthenticated) {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
+          localStorage.removeItem('user'); // Remove invalid user data
+        }
       }
-    }
 
-    const fetchCurrentUser = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found');
-        const response = await fetch('http://localhost:8001/users/me', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const user = await response.json();
-        setCurrentUser(user);
-      } catch (error) {
-        console.error('Error fetching current user:', error);
-      }
-    };
+      const fetchCurrentUser = async () => {
+        try {
+          if (!token) throw new Error('No token found');
+          const response = await fetch('http://localhost:8001/users/me', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) throw new Error(await response.text());
+          const user = await response.json();
+          setCurrentUser(user);
+        } catch (error) {
+          console.error('Error fetching current user:', error);
+        }
+      };
 
-    fetchCurrentUser();
-    fetchUsers();
-
-    return () => {
-      // Cleanup function to cancel any ongoing asynchronous tasks
+      fetchCurrentUser();
+      fetchUsers();
+    } else {
       setUser(null);
       setCurrentUser(null);
       setUsers([]);
-    };
-  }, []);
+    }
+  }, [isAuthenticated, token]);
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users', {
         method: 'GET',
@@ -103,16 +102,17 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('token', data.access_token);
   };
 
-  const logout = () => {
+  const logoutUser = () => {
     setUser(null);
     setCurrentUser(null);
+    setUsers([]);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    logout();
   };
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users/me', {
         method: 'GET',
@@ -131,7 +131,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserProfile = async (updatedUser: User) => {
     try {
-      const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users/me', {
         method: 'PUT',
@@ -151,7 +150,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updatePassword = async (oldPassword: string, newPassword: string) => {
     try {
-      const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
       const response = await fetch('http://localhost:8001/users/me/password', {
         method: 'PUT',
@@ -192,7 +190,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <UserContext.Provider value={{ user, fetchUserProfile, updateUserProfile, updatePassword, login, logout, currentUser, setCurrentUser, users, setUsers, fetchUsers, sendNotification }}>
+    <UserContext.Provider value={{ user, fetchUserProfile, updateUserProfile, updatePassword, login, logout: logoutUser, currentUser, setCurrentUser, users, setUsers, fetchUsers, sendNotification }}>
       {children}
     </UserContext.Provider>
   );

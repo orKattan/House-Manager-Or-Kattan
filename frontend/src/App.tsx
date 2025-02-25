@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
-import { AuthProvider } from "./contexts/UserContext"; // Import AuthProvider from UserContext
+import { AuthProvider } from "./contexts/AuthContext"; // Import AuthProvider from AuthContext
 import { UserProvider } from "./contexts/UserContext"; // Import UserProvider
 import { TaskProvider } from "./contexts/TaskContext"; // Import TaskProvider
 import Navbar from "./components/Navbar";
@@ -14,6 +14,7 @@ import FilterTasksPage from './pages/FilterTasksPage';
 import RoomTasksPage from './pages/RoomTasksPage';
 import EditAccountPage from './pages/EditAccountPage'; // Import EditAccountPage
 import EditPasswordPage from './pages/EditPasswordPage'; // Import EditPasswordPage
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import './App.css'; // Import App.css for layout styles
 
 const App: React.FC = () => {
@@ -43,14 +44,14 @@ const AppContent: React.FC = () => {
         <div className="main-content">
           <Switch>
             <Route path="/" exact component={WelcomePage} />
-            <Route path="/calendar" component={CalendarPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/register" component={RegisterPage} />
-            <Route path="/create-task" component={CreateTaskPage} />
-            <Route path="/filter-tasks" component={FilterTasksPage} />
-            <Route path="/tasks/:room" component={RoomTasksPage} />
-            <Route path="/edit-account" component={EditAccountPage} /> {/* Add route for EditAccountPage */}
-            <Route path="/edit-password" component={EditPasswordPage} /> {/* Add route for EditPasswordPage */}
+            <ProtectedRoute path="/calendar" component={CalendarPage} />
+            <ProtectedRoute path="/create-task" component={CreateTaskPage} />
+            <ProtectedRoute path="/filter-tasks" component={FilterTasksPage} />
+            <ProtectedRoute path="/tasks/:room" component={RoomTasksPage} />
+            <ProtectedRoute path="/edit-account" component={EditAccountPage} /> 
+            <ProtectedRoute path="/edit-password" component={EditPasswordPage} /> 
           </Switch>
         </div>
       </div>

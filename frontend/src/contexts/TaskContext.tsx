@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { Task } from '../types';
-import { useAuthContext } from './UserContext'; // Import useAuthContext from UserContext
+import { useAuth } from './AuthContext'; // Import useAuth from AuthContext
 
 interface TaskContextProps {
   tasks: Task[];
@@ -22,7 +22,7 @@ export const useTaskContext = () => {
 
 export const TaskProvider: React.FC = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { token } = useAuthContext();
+  const { token, isAuthenticated } = useAuth();
   const API_URL = 'http://localhost:8002/tasks'; // Ensure the correct endpoint
 
   const getAuthHeaders = (): HeadersInit => {
@@ -74,8 +74,10 @@ export const TaskProvider: React.FC = ({ children }) => {
 
 
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]); // Runs only once on mount
+    if (isAuthenticated) {
+      fetchTasks();
+    }
+  }, [fetchTasks, isAuthenticated]); // Runs only once on mount
 
   const addTask = async (task: Omit<Task, 'id'>) => {
     try {

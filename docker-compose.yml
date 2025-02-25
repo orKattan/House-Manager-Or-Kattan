@@ -27,13 +27,15 @@ services:
     depends_on:
       - mongo-db
 
-  calendar-service:
+  notification-service:
     build: ./backend/notification-service
     container_name: house-manager-notification-service
     ports:
       - "8003:8003"
     depends_on:
       - mongo-db
+    env_file:
+      - ./.env
 
   frontend:
     build: ./frontend
