@@ -168,7 +168,13 @@ async def login(request: Request):
 @router.get("/users/me", response_model=UserResponse)
 async def get_current_user_profile(current_user: Dict = Depends(get_current_user)):
     current_user["_id"] = str(current_user["_id"])  # Convert ObjectId to string
-    return current_user
+    return UserResponse(
+        id=current_user["_id"],
+        username=current_user["username"],
+        name=current_user["name"],
+        last_name=current_user["last_name"],
+        email=current_user["email"]
+    )
 
 @router.put("/users/me", response_model=UserResponse)
 async def update_current_user_profile(updated_user: User, current_user: Dict = Depends(get_current_user)):
@@ -207,17 +213,3 @@ async def get_users():
             email=user["email"]
         ))
     return users
-
-# Mock current user for demonstration purposes
-@router.get("/users/me", response_model=UserResponse)
-async def get_current_user():
-    current_user = users_collection.find_one({"username": "current_user"})
-    if not current_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return UserResponse(
-        id=str(current_user["_id"]),
-        username=current_user["username"],
-        name=current_user["name"],
-        last_name=current_user["last_name"],
-        email=current_user["email"]
-    )
